@@ -1,95 +1,52 @@
 diff --git a/EV3_GRIPPER_README_RU.md b/EV3_GRIPPER_README_RU.md
 new file mode 100644
-index 0000000..cb2bbe4
+index 0000000..088baf0
 --- /dev/null
 +++ b/EV3_GRIPPER_README_RU.md
-@@ -0,0 +1,74 @@
-+# Клешня EV3 для TRIK Studio — тестовый прототип
+@@ -0,0 +1,31 @@
++# Клешни и механизмы EV3 — тестовая версия 0.2
 +
-+База: исходники из переданного архива, коммит `e045db1a187fa59e63ca3575f21253c6c30f8029`. Это модификация настоящей 2D-модели TRIK Studio, а не отдельный симулятор.
++1. Распакуй весь архив в отдельную папку и запусти `Start-EV3-Gripper.cmd`.
++2. Выбери LEGO EV3 и открой 2D-модель.
++3. В правой панели открой «Клешни и механизмы». Выбери малую, большую, узкую или прямую клешню, моторный захват либо одну из четырёх пиналок.
++4. Перетащи выбранный механизм мышью на роботе. Нажми на него, чтобы появилась синяя стрелка; потяни её для поворота.
++5. У моторного захвата в панели есть только максимальное раскрытие. Начальное положение — полностью открытый захват. Пиналка начинает движение из положения, заданного поворотом стрелкой.
++6. Свободный моторный порт выбирается автоматически. Для смены нажми правой кнопкой по механизму → «Порт мотора». Колёсные порты недоступны.
++7. Удаление: выбери механизм и нажми Delete либо выбери «Удалить механизм» в его меню. Также можно выбрать «Без механизма» в панели.
 +
-+## Статус результата
++## Проверка моторного захвата
 +
-+Механизм, интерфейс настройки, моторное управление и сохранение в XML реализованы. Пройдены проверки физического ядра и XML. Изменённые единицы трансляции и Qt MOC проходят проверку компиляции с C++14 и Qt 5.15.15. Для физики использована точная версия Box2D, закреплённая в присланном коммите: `fcc60b76e1c45353e6e44f3a5f3d80301378a0aa`.
++При стандартных колёсах B/C механизм получит порт A. Поставь подвижный мяч между губками.
 +
-+**Готового Windows EXE в архиве исходников нет. Полная сборка TRIK Studio и запуск её интерфейса пока не выполнены.** Для получения запускаемой версии подготовлен отдельный Windows builder. Нельзя просто скопировать эти C++-файлы в установленную TRIK Studio.
++- Мотор A: −40, ждать 800 мс, остановить A — закрытие.
++- Моторы B/C: +30, ждать 1000 мс, остановить — перенос.
++- Мотор A: +40, ждать 800 мс, остановить A — открытие.
 +
-+## Что добавлено
++Удержание возникает только при контакте обеих губок с одним подвижным предметом. Касание одной губкой не прикрепляет предмет. При упоре движение и энкодер ограничиваются фактическим ходом механизма.
 +
-+- Моторная клешня с двумя губками для EV3. Для остальных наборов функция выключена.
-+- Правый клик по корпусу робота → «Клешня EV3…». Во время выполнения программы настройка заблокирована.
-+- Выбор свободного порта A–D, положения, угла установки, длины губок, начального раскрытия и количества градусов мотора на полный ход. Порты ведущих колёс недоступны.
-+- Обычные команды мотора EV3: положительная мощность открывает, отрицательная закрывает. Отдельные специальные блоки клешни не нужны.
-+- Ограничители раскрытия и остановка энкодера при дальнейшем закрытии удерживаемого предмета. Сброс энкодера не меняет положение губок.
-+- Физические контуры губок. Захват подвижного предмета происходит после контакта с обеими губками; одностороннее касание и стены захват не создают.
-+- Перенос удерживаемого предмета через соединение Box2D и освобождение при открытии. Предмет остаётся физическим телом и взаимодействует со стенами.
-+- Сохранение конфигурации и поля. Старые поля открываются без установленной клешни; неверные значения XML безопасно отключают механизм.
-+- При ручном перемещении робота захват освобождается. Удаление удерживаемого предмета корректно обрабатывается.
++При новом запуске захват снова полностью открыт. Кнопка возврата в исходное положение также сбрасывает механизм. Геометрия, выбор варианта и порта, угол установки и максимальное раскрытие сохраняются в XML модели.
 +
-+Геометрия задаётся в долях размеров корпуса: это сохраняет пропорции при изменении размера робота и единиц поля. В окне настройки показываются проценты. Первая версия использует жёсткие кинематически меняемые контуры губок и weld-соединение для удержания после двустороннего контакта. Это приближённая модель захвата, без расчёта деформаций деталей и точного момента редуктора. Для физического взаимодействия нужна реалистичная физика; при установке клешни она включается автоматически.
++## Проверка пиналки
 +
-+## Как получить Windows-версию без участия команды ТРИКа
++Выбери длину в списке. Установи мышью и поверни стрелкой. Обычный моторный блок позволяет вращать пиналку на несколько полных оборотов в обе стороны; механических ограничителей у неё нет. Стартовый угол задаётся установкой стрелкой и восстанавливается при запуске.
 +
-+Рядом с исходниками находится `windows-builder`: отдельный небольшой проект для GitHub Actions. Он содержит готовый патч, workflow, запускной файл и инструкцию проверки. Сборка запускается вручную и не публикуется на сайте ТРИКа.
++## Что изменилось в физике
 +
-+1. Создать отдельный приватный репозиторий в своём GitHub.
-+2. Положить **содержимое** `windows-builder` в его корень, сохранив `.github/workflows/build-ev3-gripper.yml`.
-+3. Открыть Actions → EV3 gripper portable Windows → Run workflow.
-+4. Дождаться успешного завершения, включая проверку запуска GUI на Windows. Пока сборка не завершилась успешно, готовую рабочую версию считать полученной нельзя.
-+5. Скачать артефакт `TRIK-EV3-Gripper-Windows-x64`.
-+6. Распаковать ВЕСЬ архив в отдельную папку, например `C:\TRIK-EV3-Test`, и запустить `Start-EV3-Gripper.cmd`.
++Подвижные балки теперь представлены отдельными твёрдыми телами Box2D с моторизованными шарнирами. Контуры не переставляются каждый кадр сквозь предметы. Упоры, контакты и усилие мотора участвуют в расчёте. Удержание после двустороннего контакта создаёт соединение с предметом, сохраняя его физическое тело.
 +
-+Workflow скачивает точную базовую версию и её подмодули, применяет патч, собирает продукт на Windows с Qt 5.15.2 / MinGW 8.1 x64, подготавливает DLL и Python, проверяет вход приложения в цикл GUI и только после этого выдаёт артефакт. Схема основана на штатном Windows CI проекта. Сам подготовленный workflow здесь ещё не выполнялся, поэтому результат его Windows-сборки пока не подтверждён.
-+
-+При запуске через CMD выбирается отдельный файл настроек `TRIK Studio EV3 Gripper Test`; обычная установленная версия не заменяется.
-+
-+Если GitHub подключён к чату, подготовку репозитория, запуск и разбор возможных ошибок сборки можно продолжить отсюда. Сообщения команде ТРИКа для этого не требуются.
-+
-+## Как проверить клешню после получения готовой сборки
-+
-+1. Выбрать EV3, открыть 2D-модель, установить клешню на A при ведущих моторах B/C.
-+2. Положить подвижный мяч или кеглю между губками перед роботом.
-+3. Мотор A: −40; ждать 800 мс; остановить A.
-+4. Моторы B/C: вперёд 30; ждать 1000 мс; остановить B/C.
-+5. Мотор A: +40; ждать 800 мс; остановить A.
-+6. Проверить сохранение/открытие модели и освобождение предмета при открытии.
-+
-+Не требуй энкодерного хода больше полного механического хода: в упоре мотор останавливается, как у физического механизма. Чтобы изменить установку, останови программу.
-+
-+## Для ревью и самостоятельной сборки
-+
-+Все исходные изменения уже внесены в дерево проекта. `EV3_GRIPPER.patch` предназначен для применения к отдельному чистому checkout базового коммита:
-+
-+```sh
-+git apply --check /path/to/EV3_GRIPPER.patch
-+git apply /path/to/EV3_GRIPPER.patch
-+```
-+
-+К дереву из этого архива применять патч повторно не надо. Зависимости-подмодули отсутствовали в исходном ZIP; они нужны для полной сборки. В Git checkout восстановить их можно через `git submodule update --init --recursive`. Основной проект собирается через `studio.pro` штатным комплектом Qt/компилятора. Из-за изменения общего интерфейса модели требуется полная пересборка, а не замена единственной DLL.
-+
-+Физическое ядро и XML можно проверить отдельно от всей студии:
-+
-+```sh
-+cmake -S qrtest/ev3Gripper -B build-gripper -DCMAKE_PREFIX_PATH=/path/to/Qt5
-+cmake --build build-gripper
-+ctest --test-dir build-gripper --output-on-failure
-+```
-+
-+При необходимости путь к уже восстановленному Box2D задаётся параметром `-DBOX2D_SOURCE_DIR=/path/to/Box2D`. На Windows генератор, Qt и компилятор должны иметь одинаковую архитектуру.
-+
-+`EV3_GRIPPER_geometry.png` — контрольный рендер новой геометрии поверх штатного изображения EV3; это не снимок работающего окна TRIK Studio.
++Это плоская модель: высота, прогиб деталей и точный редуктор не моделируются. Во время выполнения программы редактирование механизма отключено. Реалистичная физика включается при установке механизма.
 diff --git a/plugins/robots/common/twoDModel/include/twoDModel/engine/model/gripperGeometry.h b/plugins/robots/common/twoDModel/include/twoDModel/engine/model/gripperGeometry.h
 new file mode 100644
-index 0000000..4f765f7
+index 0000000..e74fa8d
 --- /dev/null
 +++ b/plugins/robots/common/twoDModel/include/twoDModel/engine/model/gripperGeometry.h
-@@ -0,0 +1,73 @@
-+/* EV3 gripper prototype, 2026. Licensed under Apache-2.0, like TRIK Studio. */
+@@ -0,0 +1,236 @@
++/* EV3 mechanisms, Apache-2.0. Geometry is shared by rendering and Box2D. */
 +#pragma once
 +#include <algorithm>
 +#include <array>
 +#include <cmath>
-+
++#include <vector>
 +namespace twoDModel {
 +namespace model {
 +namespace gripper {
@@ -97,72 +54,235 @@ index 0000000..4f765f7
 +	double x, y;
 +};
 +using Quad = std::array<Point, 4>;
-+using Geometry = std::array<Quad, 4>;
++using Polygon = std::vector<Point>;
++using Geometry = std::vector<Polygon>;
++enum Kind { Gripper = 0, Kicker = 1, Small = 2, Large = 3, Narrow = 4, Straight = 5 };
++constexpr double radians = 3.14159265358979323846 / 180;
++constexpr double minimumOpening = -35;
++constexpr double maximumOpening = 55; // Legacy file compatibility.
 +struct Configuration {
 +	bool enabled = false;
-+	int port = 0; // A..D. Wheel ports cannot be used.
++	int port = 0, kind = Gripper, kickerLength = 0;
 +	double x = .48, y = 0, rotation = 0, length = .70;
-+	double initialOpening = 35, travel = 180;
++	double initialOpening = 25, travel = 180, maxOpening = 50;
++	bool motorized() const
++	{
++		return kind == Gripper || kind == Kicker;
++	}
 +	bool valid() const
 +	{
-+		return port >= 0 && port < 4 && std::isfinite(x) && std::abs(x) <= 2 && std::isfinite(y)
-+		       && std::abs(y) <= 2 && std::isfinite(rotation) && std::abs(rotation) <= 180
-+		       && std::isfinite(length) && length >= .2 && length <= 2 && std::isfinite(initialOpening)
-+		       && initialOpening >= 0 && initialOpening <= 55 && std::isfinite(travel) && travel >= 30
-+		       && travel <= 1440;
++		return port >= 0 && port < 4 && kind >= Gripper && kind <= Straight && kickerLength >= 0
++		       && kickerLength < 4 && std::isfinite(x) && std::abs(x) <= 4 && std::isfinite(y)
++		       && std::abs(y) <= 4 && std::isfinite(rotation) && std::abs(rotation) <= 360
++		       && std::isfinite(length) && length >= .2 && length <= 2 && std::isfinite(maxOpening)
++		       && maxOpening >= 0 && maxOpening <= 180 && std::isfinite(initialOpening) && initialOpening >= 0
++		       && initialOpening <= 360 && std::isfinite(travel) && travel >= 30 && travel <= 1440;
 +	}
 +};
-+constexpr double maximumOpening = 55;
-+constexpr double radians = 3.14159265358979323846 / 180;
 +inline Point rotate(Point p, double angle)
 +{
 +	const double c = std::cos(angle * radians), s = std::sin(angle * radians);
 +	return {c * p.x - s * p.y, s * p.x + c * p.y};
 +}
-+// Coordinates relative to the centre of the robot body; shared by drawing and physics.
-+inline Geometry geometry(const Configuration &config, double opening, double width, double height)
++inline Polygon beam(Point a, Point b, double thickness = 1)
 +{
-+	Geometry result {};
-+	const double length = config.length * width, thickness = .055 * height, hook = .11 * height;
-+	for (int side = 0; side != 2; ++side) {
-+		const double sign = side ? 1 : -1;
-+		const Point root {config.x * width, config.y * height + sign * .19 * height};
-+		Quad beam {
-+			{{0, -thickness / 2}, {length, -thickness / 2}, {length, thickness / 2}, {0, thickness / 2}}};
-+		const double end = -sign * hook;
-+		Quad tip {{{length - thickness / 2, std::min(0.0, end)}, {length + thickness / 2, std::min(0.0, end)},
-+			{length + thickness / 2, std::max(0.0, end)}, {length - thickness / 2, std::max(0.0, end)}}};
-+		for (int part = 0; part != 2; ++part) {
-+			Quad q = part ? tip : beam;
-+			for (Point &p : q) {
-+				p = rotate(p, sign * opening);
-+				p.x += root.x;
-+				p.y += root.y;
-+				p = rotate(p, config.rotation);
-+			}
-+			result[2 * side + part] = q;
-+		}
++	const auto angle = std::atan2(b.y - a.y, b.x - a.x) / radians;
++	const auto axial = rotate({thickness / 2, 0}, angle);
++	a.x -= axial.x;
++	a.y -= axial.y;
++	b.x += axial.x;
++	b.y += axial.y;
++	const auto d = rotate({0, thickness / 2}, angle);
++	return {{a.x + d.x, a.y + d.y}, {b.x + d.x, b.y + d.y}, {b.x - d.x, b.y - d.y}, {a.x - d.x, a.y - d.y}};
++}
++inline Geometry fixedGeometry(int kind)
++{
++	switch (kind) {
++	case 2:
++		return {{{-0.456790123457, 7.11111111111}, {-0.456790123457, -7.17283950617},
++				{0.58024691358, -7.17283950617}, {0.58024691358, 7.11111111111}},
++			{{1.71604938272, 8.88888888889}, {1.30864197531, 8.74074074074},
++				{-0.345679012346, 7.41975308642}, {0.283950617284, 6.71604938272},
++				{1.8024691358, 7.85185185185}, {2.13580246914, 8.22222222222},
++				{2.06172839506, 8.67901234568}},
++			{{0.283950617284, -6.69135802469}, {-0.345679012346, -7.33333333333},
++				{1.32098765432, -8.69135802469}, {1.71604938272, -8.87654320988},
++				{2.06172839506, -8.66666666667}, {2.14814814815, -8.20987654321}}};
++	case 3:
++		return {{{-0.495552731893, 6.98856416773}, {-0.495552731893, -6.97585768742},
++				{0.533672172808, -6.97585768742}, {0.533672172808, 6.98856416773}},
++			{{1.99491740788, 9.59339263024}, {-0.355781448539, 7.34434561626},
++				{0.368487928844, 6.62007623888}, {2.22363405337, 8.38627700127}},
++			{{1.96950444727, 9.59339263024}, {1.96950444727, 8.37357052097}, {3.97712833545, 8.37357052097},
++				{4.3710292249, 8.56416772554}, {4.53621346887, 9.12325285896},
++				{4.29479034307, 9.52986022872}, {3.96442185515, 9.59339263024}},
++			{{0.368487928844, -6.59466327827}, {-0.355781448539, -7.33163913596},
++				{1.99491740788, -9.60609911055}, {2.23634053367, -8.32274459975}},
++			{{1.96950444727, -8.32274459975}, {1.96950444727, -9.60609911055},
++				{3.96442185515, -9.60609911055}, {4.29479034307, -9.51715374841},
++				{4.53621346887, -9.12325285896}, {4.3710292249, -8.56416772554},
++				{3.97712833545, -8.32274459975}}};
++	case 4:
++		return {{{-0.545454545455, 3.06220095694}, {-0.545454545455, -3.004784689},
++				{0.526315789474, -3.004784689}, {0.526315789474, 3.06220095694}},
++			{{4.87081339713, 7.22488038278}, {4.55502392344, 7.1961722488},
++				{-0.421052631579, 3.36842105263}, {0.239234449761, 2.53588516746},
++				{5.03349282297, 6.34449760766}, {5.18660287081, 6.67942583732},
++				{5.11961722488, 7.02392344498}},
++			{{0.239234449761, -2.53588516746}, {-0.421052631579, -3.38755980861},
++				{4.55502392344, -7.16746411483}, {4.87081339713, -7.20574162679},
++				{5.11961722488, -7.01435406699}, {5.18660287081, -6.66028708134},
++				{5.03349282297, -6.33492822967}}};
++	case 5:
++		return {{{4.4375, -11.825}, {4.8, -11.6375}, {4.925, -11.2875}, {4.925, 2.6875}, {4.7875, 3.05},
++				{4.425, 3.2125}, {4.075, 3.075}, {3.875, 2.7125}, {3.875, -11.3125},
++				{4.0625, -11.6625}},
++			{{3.9625, -3.55}, {3.95, -2.5125}, {0.2, 0.5}, {-0.225, 0.5125}, {-0.5375, 0.1875},
++				{-0.4375, -0.25}}};
++	default:
++		return {};
 +	}
++}
++inline std::vector<Point> kickerPoints(int length)
++{
++	switch (length) {
++	case 0:
++		return {{0, 0}, {6, 0}, {7.29891304348, 1.59782608696}};
++	case 1:
++		return {{0, 0}, {6, 0}, {7.83333333333, 1.96666666667}, {7.83333333333, 3.94}};
++	case 2:
++		return {{0, 0}, {10.0869565217, 0}, {12.1739130435, 2.04347826087}, {12.1739130435, 4.04347826087}};
++	case 3:
++		return {{0, 0}, {14, 0}, {16.1, 2}, {16.1, 4.05}};
++	default:
++		return {};
++	}
++}
++inline Point placed(Point p, const Configuration &c, double width, double height)
++{
++	p = rotate({p.x * width / 18, p.y * width / 18}, c.rotation);
++	return {p.x + c.x * width, p.y + c.y * height};
++}
++inline double cross(Point a, Point b, Point c)
++{
++	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
++}
++inline Geometry convexParts(Polygon p)
++{
++	double area = 0;
++	for (size_t i = 0; i < p.size(); ++i) {
++		auto a = p[i], b = p[(i + 1) % p.size()];
++		area += a.x * b.y - b.x * a.y;
++	}
++	const double sign = area >= 0 ? 1 : -1;
++	bool convex = p.size() <= 8;
++	for (size_t i = 0; convex && i < p.size(); ++i)
++		convex = sign * cross(p[i], p[(i + 1) % p.size()], p[(i + 2) % p.size()]) >= -1e-10;
++	if (convex)
++		return {p};
++	Geometry result;
++	while (p.size() > 3) {
++		bool found = false;
++		for (size_t i = 0; i < p.size(); ++i) {
++			const size_t prev = (i + p.size() - 1) % p.size(), next = (i + 1) % p.size();
++			const Point a = p[prev], b = p[i], c = p[next];
++			if (sign * cross(a, b, c) <= 1e-10)
++				continue;
++			bool contains = false;
++			for (size_t j = 0; j < p.size(); ++j)
++				if (j != prev && j != i && j != next) {
++					auto q = p[j];
++					if (sign * cross(a, b, q) >= -1e-10 && sign * cross(b, c, q) >= -1e-10
++					        && sign * cross(c, a, q) >= -1e-10) {
++						contains = true;
++						break;
++					}
++				}
++			if (contains)
++				continue;
++			result.push_back({a, b, c});
++			p.erase(p.begin() + static_cast<int>(i));
++			found = true;
++			break;
++		}
++		if (!found)
++			return {}; // Refuse malformed input instead of silently filling its concavities.
++	}
++	if (p.size() == 3)
++		result.push_back(p);
 +	return result;
 +}
-+// Return actual motor travel, not commanded travel. End stops and a held object stall the encoder.
-+inline double advance(double &opening, double motorDegrees, const Configuration &config, bool holding)
++
++inline Geometry geometry(const Configuration &c, double opening, double width, double height,
++	double secondOpening = 1e100)
 +{
-+	if (!config.enabled || !config.valid() || !std::isfinite(motorDegrees) || (holding && motorDegrees < 0))
++	Geometry result;
++	if (c.kind == Gripper) {
++		if (secondOpening == 1e100)
++			secondOpening = opening;
++		for (int side = 0; side < 2; ++side) {
++			const double sign = side ? 1 : -1, a = side ? secondOpening : opening;
++			auto poly = beam({0, 0}, {8, 0});
++			for (auto &p : poly) {
++				p = rotate(p, sign * a);
++				p.x += 1;
++				p.y += sign * 5.5;
++			}
++			result.push_back(poly);
++		}
++	} else if (c.kind == Kicker) {
++		const auto points = kickerPoints(c.kickerLength);
++		for (size_t i = 1; i < points.size(); ++i) {
++			auto poly = beam(points[i - 1], points[i]);
++			for (auto &p : poly)
++				p = rotate(p, opening);
++			result.push_back(poly);
++		}
++	} else
++		for (const auto &poly : fixedGeometry(c.kind)) {
++			const auto pieces = convexParts(poly);
++			result.insert(result.end(), pieces.begin(), pieces.end());
++		}
++	for (auto &poly : result)
++		for (auto &p : poly)
++			p = placed(p, c, width, height);
++	return result;
++}
++inline Geometry baseGeometry(const Configuration &c, double width, double height)
++{
++	Geometry result;
++	if (c.motorized())
++		result.push_back({{-3, -2}, {2, -2}, {2, 2}, {-3, 2}});
++	if (c.kind == Gripper)
++		result.push_back({{.1, -6}, {1.1, -6}, {1.1, 6}, {.1, 6}});
++	for (auto &poly : result)
++		for (auto &p : poly)
++			p = placed(p, c, width, height);
++	return result;
++}
++inline double motorRatio(const Configuration &c)
++{
++	return c.kind == Kicker ? 1 : (c.maxOpening / 2 - minimumOpening) / c.travel;
++}
++inline double advance(double &opening, double degrees, const Configuration &c, bool holding)
++{
++	if (!c.enabled || !c.motorized() || !c.valid() || !std::isfinite(degrees) || (holding && degrees < 0))
 +		return 0;
-+	const double old = opening;
-+	opening = std::max(0.0, std::min(maximumOpening, opening + motorDegrees * maximumOpening / config.travel));
-+	return (opening - old) * config.travel / maximumOpening;
++	const double before = opening;
++	opening += degrees * motorRatio(c);
++	if (c.kind == Gripper)
++		opening = std::max(minimumOpening, std::min(c.maxOpening / 2, opening));
++	return (opening - before) / motorRatio(c);
 +}
 +}
 +}
 +}
 diff --git a/plugins/robots/common/twoDModel/include/twoDModel/engine/model/gripperSerialization.h b/plugins/robots/common/twoDModel/include/twoDModel/engine/model/gripperSerialization.h
 new file mode 100644
-index 0000000..6caaa5d
+index 0000000..799ce3d
 --- /dev/null
 +++ b/plugins/robots/common/twoDModel/include/twoDModel/engine/model/gripperSerialization.h
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,56 @@
 +/* EV3 gripper prototype, 2026. Apache-2.0. */
 +#pragma once
 +#include <QDomElement>
@@ -181,6 +301,9 @@ index 0000000..6caaa5d
 +	element.setAttribute("length", config.length);
 +	element.setAttribute("opening", config.initialOpening);
 +	element.setAttribute("travel", config.travel);
++	element.setAttribute("kind", config.kind);
++	element.setAttribute("kickerLength", config.kickerLength);
++	element.setAttribute("maxOpening", config.maxOpening);
 +	robot.appendChild(element);
 +}
 +inline Configuration deserialize(const QDomElement &robot)
@@ -203,15 +326,21 @@ index 0000000..6caaa5d
 +	config.y = number("y", 0);
 +	config.rotation = number("rotation", 0);
 +	config.length = number("length", .70);
-+	config.initialOpening = number("opening", 35);
++	config.initialOpening = number("opening", 25);
 +	config.travel = number("travel", 180);
++	const double kind = number("kind", 0), length = number("kickerLength", 0);
++	valid = valid && kind == std::floor(kind) && kind >= 0 && kind <= 5 && length == std::floor(length)
++	        && length >= 0 && length < 4;
++	config.kind = valid ? static_cast<int>(kind) : 0;
++	config.kickerLength = valid ? static_cast<int>(length) : 0;
++	config.maxOpening = number("maxOpening", element.hasAttribute("kind") ? 50 : 110);
 +	return valid && config.valid() ? config : Configuration();
 +}
 +}
 +}
 +}
 diff --git a/plugins/robots/common/twoDModel/include/twoDModel/engine/model/robotModel.h b/plugins/robots/common/twoDModel/include/twoDModel/engine/model/robotModel.h
-index 5981073..01462b4 100644
+index 5981073..a3aec32 100644
 --- a/plugins/robots/common/twoDModel/include/twoDModel/engine/model/robotModel.h
 +++ b/plugins/robots/common/twoDModel/include/twoDModel/engine/model/robotModel.h
 @@ -22,6 +22,7 @@
@@ -222,7 +351,7 @@ index 5981073..01462b4 100644
  #include "twoDModel/twoDModelDeclSpec.h"
  
  class QGraphicsItem;
-@@ -73,6 +74,24 @@ public:
+@@ -73,6 +74,31 @@ public:
  
  	~RobotModel() override;
  
@@ -241,13 +370,20 @@ index 5981073..01462b4 100644
 +	}
 +	int gripperPower() const;
 +	void advanceGripper(qreal seconds, bool holding);
++	void resetGripper();
++	double gripperJawOpening(int side) const
++	{
++		return mGripper.kind == gripper::Gripper ? mJawOpenings[side] : mGripperOpening;
++	}
++	double gripperMotorVelocity() const;
++	void recordGripperMotion(double first, double second, double motorDegrees);
 +	void serializeGripper(QDomElement &robot) const;
 +	void deserializeGripper(const QDomElement &robot);
 +
  	void reinit();
  	void reinitMotors();
  	void clear();
-@@ -172,6 +191,8 @@ public Q_SLOTS:
+@@ -172,6 +198,8 @@ public Q_SLOTS:
  Q_SIGNALS:
  	void positionChanged(const QPointF &newPosition);
  	void rotationChanged(qreal newRotation);
@@ -256,12 +392,13 @@ index 5981073..01462b4 100644
  	void sizeChanged(const QSizeF newSize);
  	void deserialized(QPointF newPosition, qreal newRotation);
  
-@@ -189,6 +210,9 @@ Q_SIGNALS:
+@@ -189,6 +217,10 @@ Q_SIGNALS:
  		const kitBase::robotModel::PortInfo &port);
  
  private:
 +	gripper::Configuration mGripper;
-+	double mGripperOpening = 35;
++	double mGripperOpening = 25;
++	std::array<double, 2> mJawOpenings {{25, 25}};
 +	unsigned mGripperRevision = 0;
  	QVector2D robotDirectionVector() const;
  
@@ -283,6 +420,15 @@ index 20cb15a..8a8a4cd 100644
  	/// Returns a port that is used for left robot wheel by default.
  	virtual kitBase::robotModel::PortInfo defaultLeftWheelPort() const = 0;
  
+diff --git a/plugins/robots/common/twoDModel/mechanisms.qrc b/plugins/robots/common/twoDModel/mechanisms.qrc
+new file mode 100644
+index 0000000..9fdfaa5
+--- /dev/null
++++ b/plugins/robots/common/twoDModel/mechanisms.qrc
+@@ -0,0 +1,2 @@
++<?xml version='1.0' encoding='utf-8'?>
++<RCC><qresource prefix="/mechanisms"><file alias="beam-angle.png">images/mechanisms/beam-angle.png</file><file alias="beam-straight.png">images/mechanisms/beam-straight.png</file><file alias="claw-straight.png">images/mechanisms/claw-straight.png</file><file alias="claw-large.png">images/mechanisms/claw-large.png</file><file alias="kicker-medium.png">images/mechanisms/kicker-medium.png</file><file alias="kicker-long.png">images/mechanisms/kicker-long.png</file><file alias="claw-small.png">images/mechanisms/claw-small.png</file><file alias="kicker-extra-long.png">images/mechanisms/kicker-extra-long.png</file><file alias="claw-narrow.png">images/mechanisms/claw-narrow.png</file></qresource></RCC>
+\ No newline at end of file
 diff --git a/plugins/robots/common/twoDModel/src/engine/model/physics/box2DPhysicsEngine.cpp b/plugins/robots/common/twoDModel/src/engine/model/physics/box2DPhysicsEngine.cpp
 index 92cda02..daa6996 100644
 --- a/plugins/robots/common/twoDModel/src/engine/model/physics/box2DPhysicsEngine.cpp
@@ -304,20 +450,61 @@ index 92cda02..daa6996 100644
  		return;
 diff --git a/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DGripper.cpp b/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DGripper.cpp
 new file mode 100644
-index 0000000..dffd5b2
+index 0000000..a6c6a6e
 --- /dev/null
 +++ b/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DGripper.cpp
-@@ -0,0 +1,106 @@
-+/* EV3 gripper prototype, 2026. Apache-2.0. */
+@@ -0,0 +1,199 @@
++/* EV3 mechanisms. Apache-2.0. Moving links are real rigid bodies with motorized hinges. */
 +#include "box2DGripper.h"
 +#include <algorithm>
 +using namespace twoDModel::model::physics::parts;
++namespace g = twoDModel::model::gripper;
++namespace {
++b2ShapeId polygon(b2BodyId body, const g::Polygon &poly, bool moving)
++{
++	std::vector<b2Vec2> points;
++	for (auto p : poly)
++		points.push_back({static_cast<float>(p.x), static_cast<float>(-p.y)});
++	const auto hull = b2ComputeHull(points.data(), static_cast<int>(points.size()));
++	if (hull.count < 3)
++		return b2_nullShapeId;
++	const auto shape = b2MakePolygon(&hull, 0);
++	auto def = b2DefaultShapeDef();
++	double area = 0;
++	for (size_t i = 0; i < poly.size(); ++i) {
++		auto a = poly[i], b = poly[(i + 1) % poly.size()];
++		area += a.x * b.y - b.x * a.y;
++	}
++	def.density = moving ? static_cast<float>(.02 / std::max(1e-12, std::abs(area) / 2)) : 0;
++	def.material.friction = .8f;
++	def.material.restitution = 0;
++	def.filter.groupIndex = -123;
++	return b2CreatePolygonShape(body, &def, &shape);
++}
++}
 +Box2DGripper::~Box2DGripper()
 +{
++	clear();
++}
++void Box2DGripper::clear()
++{
 +	release();
-+	for (auto &shape : mShapes)
-+		if (b2Shape_IsValid(shape))
-+			b2DestroyShape(shape, false);
++	for (auto &j : mJoints) {
++		if (b2Joint_IsValid(j))
++			b2DestroyJoint(j);
++		j = b2_nullJointId;
++	}
++	for (auto &b : mBodies) {
++		if (b2Body_IsValid(b))
++			b2DestroyBody(b);
++		b = b2_nullBodyId;
++	}
++	for (auto s : mFixed)
++		if (b2Shape_IsValid(s))
++			b2DestroyShape(s, false);
++	mFixed.clear();
++	for (auto &v : mShapes)
++		v.clear();
 +}
 +bool Box2DGripper::holding() const
 +{
@@ -330,83 +517,135 @@ index 0000000..dffd5b2
 +	mGripJoint = b2_nullJointId;
 +	mHeldBody = b2_nullBodyId;
 +}
-+void Box2DGripper::setGeometry(const twoDModel::model::gripper::Geometry &geometry, bool enabled)
++void Box2DGripper::configure(const g::Configuration &c, double initial, double width, double height)
 +{
-+	if (!enabled) {
-+		release();
-+		for (auto &shape : mShapes) {
-+			if (b2Shape_IsValid(shape))
-+				b2DestroyShape(shape, false);
-+			shape = b2_nullShapeId;
-+		}
++	clear();
++	mConfig = c;
++	mOpening = {{initial, initial}};
++	mLast = {{0, 0}};
++	if (!c.enabled || !c.valid())
++		return;
++	const auto geometry = g::geometry(c, initial, width, height);
++	for (const auto &p : g::baseGeometry(c, width, height))
++		mFixed.push_back(polygon(mRobot, p, false));
++	if (!c.motorized()) {
++		for (const auto &p : geometry)
++			mFixed.push_back(polygon(mRobot, p, false));
 +		return;
 +	}
-+	for (int i = 0; i != 4; ++i) {
-+		b2Vec2 points[4];
-+		for (int j = 0; j != 4; ++j)
-+			points[j] = {static_cast<float>(geometry[i][j].x), static_cast<float>(geometry[i][j].y)};
-+		const auto hull = b2ComputeHull(points, 4);
-+		if (hull.count < 3)
-+			continue;
-+		const auto polygon = b2MakePolygon(&hull, 0);
-+		if (b2Shape_IsValid(mShapes[i])) {
-+			// Avoid invalidating contacts when the motor is stopped or stalled.
-+			const auto old = b2Shape_GetPolygon(mShapes[i]);
-+			bool equal = old.count == polygon.count;
-+			for (int j = 0; equal && j < old.count; ++j)
-+				equal = b2DistanceSquared(old.vertices[j], polygon.vertices[j]) < 1e-12f;
-+			if (!equal)
-+				b2Shape_SetPolygon(mShapes[i], &polygon);
-+		} else {
-+			auto def = b2DefaultShapeDef();
-+			def.density = 0;
-+			def.material.friction = .9f;
-+			def.material.restitution = 0;
-+			mShapes[i] = b2CreatePolygonShape(mRobot, &def, &polygon);
++	const int count = c.kind == g::Gripper ? 2 : 1;
++	for (int side = 0; side < count; ++side) {
++		auto def = b2DefaultBodyDef();
++		def.type = b2_dynamicBody;
++		def.position = b2Body_GetPosition(mRobot);
++		def.rotation = b2Body_GetRotation(mRobot);
++		def.isBullet = true;
++		def.enableSleep = false;
++		mBodies[side] = b2CreateBody(mWorld, &def);
++		if (c.kind == g::Gripper)
++			mShapes[side].push_back(polygon(mBodies[side], geometry[side], true));
++		else
++			for (const auto &p : geometry)
++				mShapes[side].push_back(polygon(mBodies[side], p, true));
++		auto joint = b2DefaultRevoluteJointDef();
++		joint.base.bodyIdA = mRobot;
++		joint.base.bodyIdB = mBodies[side];
++		joint.base.collideConnected = false;
++		const auto p = g::placed(c.kind == g::Gripper ? g::Point {1, side ? 5.5 : -5.5} : g::Point {0, 0}, c,
++			width, height);
++		joint.base.localFrameA.p = {static_cast<float>(p.x), static_cast<float>(-p.y)};
++		joint.base.localFrameB.p = joint.base.localFrameA.p;
++		joint.enableMotor = true;
++		joint.maxMotorTorque =
++			static_cast<float>((c.kind == g::Gripper ? .20 : .35) * (width / .18) * (width / .18));
++		if (c.kind == g::Gripper) {
++			const double sign = side ? 1 : -1;
++			const double a = -sign * (g::minimumOpening - initial) * g::radians,
++				     b = -sign * (c.maxOpening / 2 - initial) * g::radians;
++			joint.enableLimit = true;
++			joint.lowerAngle = static_cast<float>(std::min(a, b));
++			joint.upperAngle = static_cast<float>(std::max(a, b));
 +		}
++		mJoints[side] = b2CreateRevoluteJoint(mWorld, &joint);
 +	}
++}
++void Box2DGripper::drive(double degrees)
++{
++	if (degrees > 0)
++		release();
++	const double speed = std::max(-20.0, std::min(20.0, degrees * g::motorRatio(mConfig) * g::radians));
++	for (int side = 0; side < 2; ++side)
++		if (b2Joint_IsValid(mJoints[side])) {
++			const double sign = mConfig.kind == g::Gripper ? (side ? 1 : -1) : 1;
++			double controlled = speed;
++			if (mConfig.kind == g::Gripper) {
++				// Brake before a mechanical stop instead of continuously driving into the limit solver.
++				controlled = std::max((g::minimumOpening - mOpening[side]) * g::radians / .08,
++					std::min((mConfig.maxOpening / 2 - mOpening[side]) * g::radians / .08,
++						controlled));
++			}
++			b2RevoluteJoint_SetMotorSpeed(mJoints[side],
++				static_cast<float>(-sign * (holding() && degrees < 0 ? 0 : controlled)));
++			b2Body_SetAwake(mBodies[side], true);
++		}
++}
++double Box2DGripper::sample()
++{
++	double travelled = 0;
++	int count = 0;
++	for (int side = 0; side < 2; ++side)
++		if (b2Joint_IsValid(mJoints[side])) {
++			const double angle = b2RevoluteJoint_GetAngle(mJoints[side]);
++			double delta = angle - mLast[side];
++			while (delta > 3.141592653589793)
++				delta -= 2 * 3.141592653589793;
++			while (delta < -3.141592653589793)
++				delta += 2 * 3.141592653589793;
++			mLast[side] = angle;
++			const double sign = mConfig.kind == g::Gripper ? (side ? 1 : -1) : 1;
++			delta = -sign * delta / g::radians;
++			mOpening[side] += delta;
++			travelled += delta / g::motorRatio(mConfig);
++			++count;
++		}
++	if (mConfig.kind == g::Kicker)
++		mOpening[1] = mOpening[0];
++	return count ? travelled / count : 0;
 +}
 +bool Box2DGripper::touches(b2BodyId body, int side) const
 +{
-+	for (int i = side * 2; i < side * 2 + 2; ++i) {
-+		if (!b2Shape_IsValid(mShapes[i]))
-+			continue;
-+		std::vector<b2ContactData> contacts(b2Shape_GetContactCapacity(mShapes[i]));
-+		const int count =
-+			b2Shape_GetContactData(mShapes[i], contacts.data(), static_cast<int>(contacts.size()));
-+		for (int j = 0; j < count; ++j) {
-+			const auto &c = contacts[j];
-+			const auto other = B2_ID_EQUALS(c.shapeIdA, mShapes[i]) ? c.shapeIdB : c.shapeIdA;
-+			// Box2D also reports speculative contacts. Require a touching manifold.
-+			bool touching = false;
-+			for (int k = 0; k < c.manifold.pointCount; ++k)
-+				touching = touching || c.manifold.points[k].separation <= .001f;
-+			if (touching && B2_ID_EQUALS(b2Shape_GetBody(other), body))
-+				return true;
++	for (auto shape : mShapes[side])
++		if (b2Shape_IsValid(shape)) {
++			std::vector<b2ContactData> contacts(b2Shape_GetContactCapacity(shape));
++			const int count =
++				b2Shape_GetContactData(shape, contacts.data(), static_cast<int>(contacts.size()));
++			for (int j = 0; j < count; ++j) {
++				const auto &c = contacts[j];
++				const auto other = B2_ID_EQUALS(c.shapeIdA, shape) ? c.shapeIdB : c.shapeIdA;
++				bool touching = false;
++				for (int k = 0; k < c.manifold.pointCount; ++k)
++					touching = touching || c.manifold.points[k].separation <= .001f;
++				if (touching && B2_ID_EQUALS(b2Shape_GetBody(other), body))
++					return true;
++			}
 +		}
-+	}
 +	return false;
 +}
 +void Box2DGripper::tryCapture(const std::vector<b2BodyId> &objects, bool closing)
 +{
-+	if (holding() || !closing)
++	if (mConfig.kind != g::Gripper || holding() || !closing)
 +		return;
 +	for (auto body : objects) {
 +		if (!b2Body_IsValid(body) || b2Body_GetType(body) != b2_dynamicBody || !b2Body_IsEnabled(body)
-+		        || b2Body_GetJointCount(body) > 0)
-+			continue;
-+		if (!touches(body, 0) || !touches(body, 1))
++		        || b2Body_GetJointCount(body) > 0 || !touches(body, 0) || !touches(body, 1))
 +			continue;
 +		auto joint = b2DefaultWeldJointDef();
 +		joint.base.bodyIdA = mRobot;
 +		joint.base.bodyIdB = body;
-+		// Preserve the contact pose: no teleport and no snap to the gripper centre.
-+		const auto anchor = b2Body_GetPosition(body);
-+		joint.base.localFrameA.p = b2Body_GetLocalPoint(mRobot, anchor);
-+		const auto angleA = b2Rot_GetAngle(b2Body_GetRotation(mRobot));
-+		const auto angleB = b2Rot_GetAngle(b2Body_GetRotation(body));
-+		joint.base.localFrameA.q = b2MakeRot(angleB - angleA);
-+		joint.base.localFrameB.p = b2Vec2 {0, 0};
++		joint.base.localFrameA.p = b2Body_GetLocalPoint(mRobot, b2Body_GetPosition(body));
++		joint.base.localFrameA.q = b2MakeRot(
++			b2Rot_GetAngle(b2Body_GetRotation(body)) - b2Rot_GetAngle(b2Body_GetRotation(mRobot)));
++		joint.base.localFrameB.p = {0, 0};
 +		joint.base.localFrameB.q = b2MakeRot(0);
 +		joint.base.collideConnected = false;
 +		mGripJoint = b2CreateWeldJoint(mWorld, &joint);
@@ -416,11 +655,11 @@ index 0000000..dffd5b2
 +}
 diff --git a/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DGripper.h b/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DGripper.h
 new file mode 100644
-index 0000000..1e60b40
+index 0000000..b8bf42c
 --- /dev/null
 +++ b/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DGripper.h
-@@ -0,0 +1,39 @@
-+/* EV3 gripper prototype, 2026. Apache-2.0. */
+@@ -0,0 +1,50 @@
++/* EV3 mechanisms. Apache-2.0. */
 +#pragma once
 +#include <box2d/box2d.h>
 +#include <array>
@@ -430,7 +669,6 @@ index 0000000..1e60b40
 +namespace model {
 +namespace physics {
 +namespace parts {
-+// Rigid jaw approximation, driven by motor travel. Held objects retain a real Box2D body.
 +class Box2DGripper
 +{
 +public:
@@ -442,16 +680,28 @@ index 0000000..1e60b40
 +	~Box2DGripper();
 +	Box2DGripper(const Box2DGripper &) = delete;
 +	Box2DGripper &operator=(const Box2DGripper &) = delete;
-+	void setGeometry(const gripper::Geometry &geometryInPhysicsUnits, bool enabled);
-+	void tryCapture(const std::vector<b2BodyId> &movableObjects, bool closing);
++	void clear();
++	void configure(const gripper::Configuration &, double opening, double width, double height);
++	void drive(double motorDegreesPerSecond);
++	double sample(); // Actual motor travel since the preceding sample.
++	double opening(int side = 0) const
++	{
++		return mOpening[side];
++	}
++	void tryCapture(const std::vector<b2BodyId> &, bool closing);
 +	void release();
 +	bool holding() const;
 +
 +private:
-+	bool touches(b2BodyId body, int side) const;
++	bool touches(b2BodyId, int) const;
 +	b2WorldId mWorld;
 +	b2BodyId mRobot;
-+	std::array<b2ShapeId, 4> mShapes {};
++	gripper::Configuration mConfig;
++	std::vector<b2ShapeId> mFixed;
++	std::array<std::vector<b2ShapeId>, 2> mShapes;
++	std::array<b2BodyId, 2> mBodies {{b2_nullBodyId, b2_nullBodyId}};
++	std::array<b2JointId, 2> mJoints {{b2_nullJointId, b2_nullJointId}};
++	std::array<double, 2> mOpening {{25, 25}}, mLast {{0, 0}};
 +	b2JointId mGripJoint = b2_nullJointId;
 +	b2BodyId mHeldBody = b2_nullBodyId;
 +};
@@ -460,7 +710,7 @@ index 0000000..1e60b40
 +}
 +}
 diff --git a/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DRobot.cpp b/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DRobot.cpp
-index 0f7b2b3..111bbb0 100644
+index 0f7b2b3..df1ab25 100644
 --- a/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DRobot.cpp
 +++ b/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DRobot.cpp
 @@ -21,6 +21,7 @@
@@ -488,50 +738,55 @@ index 0f7b2b3..111bbb0 100644
  	b2DestroyBody(mBodyId);
  	mBodyId = b2_nullBodyId;
  }
-@@ -129,6 +133,7 @@ void Box2DRobot::removeSensor(const twoDModel::view::SensorItem *sensor)
+@@ -129,6 +133,8 @@ void Box2DRobot::removeSensor(const twoDModel::view::SensorItem *sensor)
  
  void Box2DRobot::moveToPoint(b2Vec2 destination)
  {
-+	mGripper->release();
++	mGripper->clear();
++	mGripperRevision = ~0u;
  	// it is just a parallel transport, there is no need to reinit joints and etc
  	const b2Vec2 oldPosition = b2Body_GetPosition(mBodyId);
  	if (oldPosition == destination) {
-@@ -160,6 +165,7 @@ void Box2DRobot::keepConstantSpeed(float speed1, float speed2) const
+@@ -160,6 +166,8 @@ void Box2DRobot::keepConstantSpeed(float speed1, float speed2) const
  
  void Box2DRobot::setRotation(float angle)
  {
-+	mGripper->release();
++	mGripper->clear();
++	mGripperRevision = ~0u;
  	auto rotation = b2MakeRot(angle);
  	b2Body_SetTransform(mBodyId, b2Body_GetPosition(mBodyId), rotation);
  
-@@ -316,3 +322,28 @@ void Box2DRobot::connectSensor(const Box2DItem &sensor)
+@@ -316,3 +324,31 @@ void Box2DRobot::connectSensor(const Box2DItem &sensor)
  	jointDef.angularDampingRatio = 1.0f;
  	b2CreateWeldJoint(mWorldId, &jointDef);
  }
 +
 +void Box2DRobot::updateGripper(qreal seconds)
 +{
++	Q_UNUSED(seconds);
 +	if (mGripperRevision != mModel->gripperRevision()) {
-+		mGripper->release();
 +		mGripperRevision = mModel->gripperRevision();
++		auto c = mModel->gripperConfiguration();
++		c.enabled = c.enabled && mModel->onTheGround();
++		const auto size = mModel->parameters()->size();
++		mGripper->configure(c, mModel->gripperOpening(), mEngine->pxToM(size.width()),
++			mEngine->pxToM(size.height()));
 +	}
-+	if (mModel->gripperPower() > 0 || !mModel->onTheGround())
-+		mGripper->release();
-+	mModel->advanceGripper(seconds, mGripper->holding());
-+	const auto size = mModel->parameters()->size();
-+	auto geometry = twoDModel::model::gripper::geometry(mModel->gripperConfiguration(), mModel->gripperOpening(),
-+		size.width(), size.height());
-+	for (auto &quad : geometry)
-+		for (auto &point : quad) {
-+			const auto physical = mEngine->positionToBox2D(QPointF(point.x, point.y));
-+			point = {physical.x, physical.y};
-+		}
-+	mGripper->setGeometry(geometry, mModel->gripperConfiguration().enabled && mModel->onTheGround());
++	if (!mModel->onTheGround()) {
++		mGripper->clear();
++		mGripperRevision = ~0u;
++		return;
++	}
++	mGripper->drive(mModel->gripperMotorVelocity());
 +}
 +void Box2DRobot::captureWithGripper(const std::vector<b2BodyId> &items)
 +{
-+	mGripper->tryCapture(items,
-+		mModel->gripperConfiguration().enabled && mModel->onTheGround() && mModel->gripperPower() < 0);
++	const auto &c = mModel->gripperConfiguration();
++	if (!c.enabled || !c.motorized() || !mModel->onTheGround())
++		return;
++	const double actual = mGripper->sample();
++	mModel->recordGripperMotion(mGripper->opening(0), mGripper->opening(1), actual);
++	mGripper->tryCapture(items, c.kind == twoDModel::model::gripper::Gripper && mModel->gripperPower() < 0);
 +}
 diff --git a/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DRobot.h b/plugins/robots/common/twoDModel/src/engine/model/physics/parts/box2DRobot.h
 index 9ab07bd..258341a 100644
@@ -576,7 +831,7 @@ index d38c8c4..c59c1c4 100644
  		mPositionShift[&robot] = -mPositionShift[&robot];
  		mRotation[&robot] = -mRotation[&robot];
 diff --git a/plugins/robots/common/twoDModel/src/engine/model/robotModel.cpp b/plugins/robots/common/twoDModel/src/engine/model/robotModel.cpp
-index 1fefee7..2439953 100644
+index 1fefee7..b2149b8 100644
 --- a/plugins/robots/common/twoDModel/src/engine/model/robotModel.cpp
 +++ b/plugins/robots/common/twoDModel/src/engine/model/robotModel.cpp
 @@ -14,6 +14,7 @@
@@ -587,17 +842,15 @@ index 1fefee7..2439953 100644
  #include <QtCore/QtMath>
  #include <QtGui/QTransform>
  #include <qrutils/mathUtils/math.h>
-@@ -72,6 +73,9 @@ void RobotModel::reinitMotors()
+@@ -72,6 +73,7 @@ void RobotModel::reinitMotors()
  void RobotModel::reinit()
  {
  	reinitMotors();
-+	mGripperOpening = mGripper.initialOpening;
-+	++mGripperRevision;
-+	Q_EMIT gripperChanged();
++	resetGripper();
  	mMarker = Qt::transparent;
  	mBeepTime = 0;
  	mDeltaDegreesOfAngle = 0;
-@@ -95,6 +99,7 @@ RobotModel::Wheel *RobotModel::initMotor(int radius, int speed, int degrees, con
+@@ -95,6 +97,7 @@ RobotModel::Wheel *RobotModel::initMotor(int radius, int speed, int degrees, con
  	auto *motor = new Wheel();
  	motor->radius = radius;
  	motor->speed = speed;
@@ -605,16 +858,16 @@ index 1fefee7..2439953 100644
  	motor->degrees = degrees;
  	motor->isUsed = isUsed;
  	motor->breakMode = true;
-@@ -143,6 +148,8 @@ void RobotModel::countMotorTurnover()
+@@ -143,6 +146,8 @@ void RobotModel::countMotorTurnover()
  {
  	for (auto &&motor : mMotors) {
  		const PortInfo &port = mMotors.key(motor);
-+		if (mGripper.enabled && port.name() == QString(QChar('A' + mGripper.port)))
++		if (mGripper.enabled && mGripper.motorized() && port.name() == QString(QChar('A' + mGripper.port)))
 +			continue;
  		const qreal degrees = Timeline::timeInterval * motor->spoiledSpeed
  		                      * mRobotModelParameters->onePercentAngularVelocity();
  		const qreal actualDegrees = mPhysicsEngine->isRobotStuck() ? -degrees : degrees;
-@@ -367,22 +374,9 @@ void RobotModel::recalculateParams()
+@@ -367,22 +372,9 @@ void RobotModel::recalculateParams()
  		return;
  	}
  
@@ -640,7 +893,7 @@ index 1fefee7..2439953 100644
  
  	nextStep();
  	countSpeedAndAcceleration();
-@@ -447,6 +441,7 @@ void RobotModel::serialize(QDomElement &parent) const
+@@ -447,6 +439,7 @@ void RobotModel::serialize(QDomElement &parent) const
  	mAliasConfiguration->serialize(curRobot);
  	mSensorsConfiguration->serialize(curRobot);
  	serializeWheels(curRobot);
@@ -648,7 +901,7 @@ index 1fefee7..2439953 100644
  
  	bool replaced = false;
  	for (QDomElement robot = parent.firstChildElement("robot"); !robot.isNull();
-@@ -493,6 +488,7 @@ void RobotModel::serializeWorldModel(QDomElement &parent) const
+@@ -493,6 +486,7 @@ void RobotModel::serializeWorldModel(QDomElement &parent) const
  	if (mRobotModelParameters->propertyChanged("linearDamping")) {
  		robot.setAttribute("linearDamping", QString::number(mRobotModelParameters->linearDamping()));
  	}
@@ -656,7 +909,7 @@ index 1fefee7..2439953 100644
  	mStartPositionMarker->serialize(robot);
  	world.appendChild(robot);
  	QDomElement wheel = world.ownerDocument().createElement("wheels");
-@@ -563,6 +559,7 @@ void RobotModel::deserializeWorldModel(const QDomElement &world)
+@@ -563,6 +557,7 @@ void RobotModel::deserializeWorldModel(const QDomElement &world)
  	if (wheelElement.hasAttribute("mass")) {
  		mRobotModelParameters->setWheelMass(wheelElement.attribute("mass").toDouble());
  	}
@@ -664,7 +917,7 @@ index 1fefee7..2439953 100644
  	Q_EMIT deserialized(QPointF(mPos.x(), mPos.y()), mAngle);
  }
  
-@@ -571,6 +568,7 @@ void RobotModel::deserialize(const QDomElement &robotElement)
+@@ -571,6 +566,7 @@ void RobotModel::deserialize(const QDomElement &robotElement)
  	mAliasConfiguration->deserialize(robotElement);
  	deserializeWheels(robotElement);
  	configuration().deserialize(robotElement);
@@ -672,11 +925,11 @@ index 1fefee7..2439953 100644
  	nextFragment();
  }
  
-@@ -596,6 +594,11 @@ bool RobotModel::isRiding() const
+@@ -596,6 +592,11 @@ bool RobotModel::isRiding() const
  
  void RobotModel::setMotorPortOnWheel(WheelEnum wheel, const kitBase::robotModel::PortInfo &port)
  {
-+	if (mGripper.enabled && port.name() == QString(QChar('A' + mGripper.port))) {
++	if (mGripper.enabled && mGripper.motorized() && port.name() == QString(QChar('A' + mGripper.port))) {
 +		mGripper.enabled = false;
 +		++mGripperRevision;
 +		Q_EMIT gripperChanged();
@@ -684,7 +937,7 @@ index 1fefee7..2439953 100644
  	const auto equals = mWheelsToMotorPortsMap[wheel] == port;
  	// Store information with an alias for further serialization
  	mWheelsToMotorPortsMap[wheel] = mAliasConfiguration->createFromPort(port);
-@@ -641,3 +644,71 @@ twoDModel::items::StartPosition *RobotModel::startPositionMarker()
+@@ -641,3 +642,92 @@ twoDModel::items::StartPosition *RobotModel::startPositionMarker()
  {
  	return mStartPositionMarker;
  }
@@ -694,15 +947,16 @@ index 1fefee7..2439953 100644
 +	if (!configuration.valid() || (configuration.enabled && !info().supportsGripper()))
 +		return false;
 +	const PortInfo port(QString(QChar('A' + configuration.port)), output);
-+	if (configuration.enabled
++	if (configuration.enabled && configuration.motorized()
 +	        && (getPortInfoOnWheel(left).name() == port.name() || getPortInfoOnWheel(right).name() == port.name()))
 +		return false;
 +	// Stop the previously assigned motor before replacing the mechanism.
 +	for (auto it = mMotors.begin(); it != mMotors.end(); ++it)
-+		if (it.key().name() == QString(QChar('A' + mGripper.port)))
++		if (mGripper.enabled && mGripper.motorized() && it.key().name() == QString(QChar('A' + mGripper.port)))
 +			it.value()->speed = 0;
 +	mGripper = configuration;
-+	mGripperOpening = mGripper.initialOpening;
++	mGripperOpening = mGripper.kind == gripper::Gripper ? mGripper.maxOpening / 2 : mGripper.initialOpening;
++	mJawOpenings = {{mGripperOpening, mGripperOpening}};
 +	++mGripperRevision;
 +	if (mGripper.enabled)
 +		mSettings->setRealisticPhysics(true);
@@ -712,7 +966,7 @@ index 1fefee7..2439953 100644
 +
 +int RobotModel::gripperPower() const
 +{
-+	if (!mGripper.enabled || !onTheGround())
++	if (!mGripper.enabled || !mGripper.motorized() || !onTheGround())
 +		return 0;
 +	for (auto it = mMotors.cbegin(); it != mMotors.cend(); ++it)
 +		if (it.key().name() == QString(QChar('A' + mGripper.port)))
@@ -720,26 +974,46 @@ index 1fefee7..2439953 100644
 +	return 0;
 +}
 +
++void RobotModel::resetGripper()
++{
++	mGripperOpening = mGripper.kind == gripper::Gripper ? mGripper.maxOpening / 2 : mGripper.initialOpening;
++	mJawOpenings = {{mGripperOpening, mGripperOpening}};
++	++mGripperRevision;
++	Q_EMIT gripperChanged();
++}
++double RobotModel::gripperMotorVelocity() const
++{
++	return gripperPower() * parameters()->onePercentAngularVelocity() * 1000;
++}
++void RobotModel::recordGripperMotion(double first, double second, double actual)
++{
++	if (!qIsFinite(first) || !qIsFinite(second) || !qIsFinite(actual))
++		return;
++	mJawOpenings = {{first, second}};
++	mGripperOpening = (first + second) / 2;
++	if (mGripper.enabled && mGripper.motorized())
++		for (auto it = mMotors.begin(); it != mMotors.end(); ++it) {
++			if (it.key().name() != QString(QChar('A' + mGripper.port)))
++				continue;
++			auto &motor = *it.value();
++			mTurnoverEngines[mMotorToEncoderPortMap[it.key()]] += actual;
++			if (motor.isUsed && motor.activeTimeType == DoByLimit
++			        && std::abs(mTurnoverEngines[mMotorToEncoderPortMap[it.key()]])
++			                   >= std::abs(motor.degrees)) {
++				motor.speed = 0;
++				motor.activeTimeType = End;
++			}
++			break;
++		}
++	Q_EMIT gripperChanged();
++}
 +void RobotModel::advanceGripper(qreal seconds, bool holding)
 +{
-+	if (!mGripper.enabled || !onTheGround() || !qIsFinite(seconds) || seconds <= 0)
++	if (!mGripper.enabled || !mGripper.motorized() || !onTheGround() || !qIsFinite(seconds) || seconds <= 0)
 +		return;
-+	for (auto it = mMotors.begin(); it != mMotors.end(); ++it) {
-+		if (it.key().name() != QString(QChar('A' + mGripper.port)))
-+			continue;
-+		auto &motor = *it.value();
-+		const double commanded = motor.speed * parameters()->onePercentAngularVelocity() * 1000 * seconds;
-+		const double actual = gripper::advance(mGripperOpening, commanded, mGripper, holding);
-+		mTurnoverEngines[mMotorToEncoderPortMap[it.key()]] += actual;
-+		if (motor.isUsed && motor.activeTimeType == DoByLimit
-+		        && std::abs(mTurnoverEngines[mMotorToEncoderPortMap[it.key()]]) >= std::abs(motor.degrees)) {
-+			motor.speed = 0;
-+			motor.activeTimeType = End;
-+		}
-+		if (actual != 0)
-+			Q_EMIT gripperChanged();
-+		break;
-+	}
++	double opening = mGripperOpening;
++	const double actual = gripper::advance(opening, gripperMotorVelocity() * seconds, mGripper, holding);
++	recordGripperMotion(opening, opening, actual);
 +}
 +
 +void RobotModel::serializeGripper(QDomElement &robot) const
@@ -756,11 +1030,482 @@ index 1fefee7..2439953 100644
 +		configureGripper(configuration);
 +	}
 +}
+diff --git a/plugins/robots/common/twoDModel/src/engine/view/parts/detailsTab.cpp b/plugins/robots/common/twoDModel/src/engine/view/parts/detailsTab.cpp
+index 2cefe1d..9b8a9e1 100644
+--- a/plugins/robots/common/twoDModel/src/engine/view/parts/detailsTab.cpp
++++ b/plugins/robots/common/twoDModel/src/engine/view/parts/detailsTab.cpp
+@@ -25,6 +25,8 @@ DetailsTab::DetailsTab(QWidget *parent)
+ 	, mDisplayRoot(new QTreeWidgetItem(this))
+ 	, mDevicesRoot(new QTreeWidgetItem(this))
+ 	, mMotorsRoot(new QTreeWidgetItem(this))
++	, mMechanismRoot(new QTreeWidgetItem(this))
++	, mMechanismItem(new QTreeWidgetItem(mMechanismRoot))
+ 	, mPhysicsRoot(new QTreeWidgetItem(this))
+ 	, mParamsRoot(new QTreeWidgetItem(this))
+ 	, mMetricRoot(new QTreeWidgetItem(this))
+@@ -38,6 +40,8 @@ DetailsTab::DetailsTab(QWidget *parent)
+ 	initItem(mDisplayRoot, tr("Display"), true);
+ 	initItem(mDevicesRoot, tr("Ports configuration"), true);
+ 	initItem(mMotorsRoot, tr("Motors"), false);
++	initItem(mMechanismRoot, QStringLiteral("Клешни и механизмы"), true);
++	mMechanismRoot->setHidden(true);
+ 	initItem(mPhysicsRoot, tr("Physics"), false);
+ 	initItem(mParamsRoot, tr("Model parameters"), false);
+ 	initItem(mMetricRoot, tr("Metric system"), false);
+@@ -120,3 +124,17 @@ void DetailsTab::setPhysicsSectionsVisible(bool visible)
+ {
+ 	mPhysicsRoot->setHidden(!visible);
+ }
++
++void DetailsTab::setMechanismConfigurer(QWidget *widget)
++{
++	if (mMechanism) {
++		removeItemWidget(mMechanismItem, 0);
++		mMechanism->deleteLater();
++	}
++	mMechanism = widget;
++	mMechanismRoot->setHidden(!widget);
++	if (widget) {
++		setItemWidget(mMechanismItem, 0, widget);
++		mMechanismItem->setSizeHint(0, widget->sizeHint());
++	}
++}
+diff --git a/plugins/robots/common/twoDModel/src/engine/view/parts/detailsTab.h b/plugins/robots/common/twoDModel/src/engine/view/parts/detailsTab.h
+index 9ab177b..b665926 100644
+--- a/plugins/robots/common/twoDModel/src/engine/view/parts/detailsTab.h
++++ b/plugins/robots/common/twoDModel/src/engine/view/parts/detailsTab.h
+@@ -37,6 +37,7 @@ public Q_SLOTS:
+ 
+ 	/// Shows motors configurer widget in corresponding section.
+ 	void setMotorsConfigurer(QWidget *widget);
++	void setMechanismConfigurer(QWidget *widget);
+ 
+ 	/// Shows physics settings widget in corresponding section.
+ 	void setPhysicsSettings(QWidget *widget);
+@@ -65,6 +66,9 @@ private:
+ 	QTreeWidgetItem *mDisplayRoot; // Takes ownership
+ 	QTreeWidgetItem *mDevicesRoot; // Takes ownership
+ 	QTreeWidgetItem *mMotorsRoot; // Takes ownership
++	QTreeWidgetItem *mMechanismRoot;
++	QTreeWidgetItem *mMechanismItem;
++	QWidget *mMechanism = nullptr;
+ 	QTreeWidgetItem *mPhysicsRoot; // Takes ownership
+ 	QTreeWidgetItem *mParamsRoot; // Takes ownership
+ 	QTreeWidgetItem *mMetricRoot; // Takes ownership
+diff --git a/plugins/robots/common/twoDModel/src/engine/view/parts/mechanismPanel.cpp b/plugins/robots/common/twoDModel/src/engine/view/parts/mechanismPanel.cpp
+new file mode 100644
+index 0000000..5d62503
+--- /dev/null
++++ b/plugins/robots/common/twoDModel/src/engine/view/parts/mechanismPanel.cpp
+@@ -0,0 +1,92 @@
++/* Apache-2.0. */
++#include "mechanismPanel.h"
++#include <QComboBox>
++#include <QDoubleSpinBox>
++#include <QLabel>
++#include <QVBoxLayout>
++#include <QSignalBlocker>
++#include <QIcon>
++#include "twoDModel/engine/model/timeline.h"
++using namespace twoDModel;
++QWidget *view::createMechanismPanel(model::RobotModel &robot, QWidget *parent)
++{
++	auto *panel = new QWidget(parent);
++	panel->setMinimumHeight(220);
++	auto *layout = new QVBoxLayout(panel);
++	layout->setContentsMargins(6, 2, 8, 8);
++	auto *choice = new QComboBox(panel);
++	choice->setObjectName("mechanismChoice");
++	choice->setIconSize(QSize(76, 42));
++	choice->addItem(QStringLiteral("Без механизма"));
++	const QStringList names = {QStringLiteral("Малая клешня"), QStringLiteral("Большая клешня"),
++		QStringLiteral("Узкая клешня"), QStringLiteral("Прямая клешня"), QStringLiteral("Моторный захват"),
++		QStringLiteral("Пиналка — короткая"), QStringLiteral("Пиналка — средняя"),
++		QStringLiteral("Пиналка — длинная"), QStringLiteral("Пиналка — очень длинная")};
++	const QStringList images = {"claw-small.png", "claw-large.png", "claw-narrow.png", "claw-straight.png",
++		"beam-straight.png", "beam-angle.png", "kicker-medium.png", "kicker-long.png", "kicker-extra-long.png"};
++	for (int i = 0; i < names.size(); ++i)
++		choice->addItem(QIcon(":/mechanisms/" + images[i]), names[i]);
++	layout->addWidget(choice);
++	auto *label = new QLabel(QStringLiteral("Максимальное раскрытие"), panel);
++	layout->addWidget(label);
++	auto *opening = new QDoubleSpinBox(panel);
++	opening->setObjectName("mechanismOpening");
++	opening->setRange(0, 180);
++	opening->setDecimals(0);
++	opening->setSuffix(QStringLiteral("°"));
++	layout->addWidget(opening);
++	auto *help = new QLabel(QStringLiteral("Перетащите механизм мышью. Для поворота потяните синюю стрелку. Порт "
++					       "мотора — правой кнопкой по механизму."),
++		panel);
++	help->setWordWrap(true);
++	layout->addWidget(help);
++	auto sync = [&robot, choice, opening, label, panel]() {
++		const auto &c = robot.gripperConfiguration();
++		const QSignalBlocker b1(choice), b2(opening);
++		const int index = !c.enabled                          ? 0
++		                  : c.kind == model::gripper::Gripper ? 5
++		                  : c.kind == model::gripper::Kicker  ? 6 + c.kickerLength
++		                                                      : c.kind - 1;
++		choice->setCurrentIndex(index);
++		opening->setValue(c.maxOpening);
++		label->setVisible(c.enabled && c.kind == model::gripper::Gripper);
++		opening->setVisible(c.enabled && c.kind == model::gripper::Gripper);
++		auto *timeline = dynamic_cast<model::Timeline *>(&robot.info().timeline());
++		panel->setEnabled(!timeline || !timeline->isStarted());
++	};
++	QObject::connect(choice, QOverload<int>::of(&QComboBox::currentIndexChanged), panel, [&robot, sync](int index) {
++		auto c = robot.gripperConfiguration();
++		c.enabled = index != 0;
++		c.kind = index == 5 ? model::gripper::Gripper : index >= 6 ? model::gripper::Kicker : index + 1;
++		if (index == 0)
++			c.kind = model::gripper::Gripper;
++		c.kickerLength = index >= 6 ? index - 6 : 0;
++		c.initialOpening = c.kind == model::gripper::Gripper ? c.maxOpening / 2 : 0;
++		if (c.motorized())
++			for (int i = 0; i < 4; ++i) {
++				const QString name(QChar('A' + i));
++				if (robot.getPortInfoOnWheel(model::RobotModel::left).name() != name
++				        && robot.getPortInfoOnWheel(model::RobotModel::right).name() != name) {
++					c.port = i;
++					break;
++				}
++			}
++		robot.configureGripper(c);
++		sync();
++	});
++	QObject::connect(opening, QOverload<double>::of(&QDoubleSpinBox::valueChanged), panel, [&robot](double value) {
++		auto c = robot.gripperConfiguration();
++		c.maxOpening = value;
++		c.initialOpening = value / 2;
++		robot.configureGripper(c);
++	});
++	QObject::connect(&robot, &model::RobotModel::gripperChanged, panel, sync);
++	QObject::connect(&robot, &model::RobotModel::wheelOnPortChanged, panel,
++		[sync](model::RobotModel::WheelEnum, const kitBase::robotModel::PortInfo &) { sync(); });
++	if (auto *timeline = dynamic_cast<model::Timeline *>(&robot.info().timeline())) {
++		QObject::connect(timeline, &model::Timeline::started, panel, sync);
++		QObject::connect(timeline, &model::Timeline::stopped, panel, sync);
++	}
++	sync();
++	return panel;
++}
+diff --git a/plugins/robots/common/twoDModel/src/engine/view/parts/mechanismPanel.h b/plugins/robots/common/twoDModel/src/engine/view/parts/mechanismPanel.h
+new file mode 100644
+index 0000000..b3668c0
+--- /dev/null
++++ b/plugins/robots/common/twoDModel/src/engine/view/parts/mechanismPanel.h
+@@ -0,0 +1,9 @@
++/* Apache-2.0. */
++#pragma once
++#include <QWidget>
++#include "twoDModel/engine/model/robotModel.h"
++namespace twoDModel {
++namespace view {
++QWidget *createMechanismPanel(model::RobotModel &model, QWidget *parent);
++}
++}
+diff --git a/plugins/robots/common/twoDModel/src/engine/view/scene/mechanismItem.cpp b/plugins/robots/common/twoDModel/src/engine/view/scene/mechanismItem.cpp
+new file mode 100644
+index 0000000..0885aa7
+--- /dev/null
++++ b/plugins/robots/common/twoDModel/src/engine/view/scene/mechanismItem.cpp
+@@ -0,0 +1,250 @@
++/* EV3 mechanisms editor. Apache-2.0. */
++#include "mechanismItem.h"
++#include <QPainter>
++#include <QPixmap>
++#include <QGraphicsScene>
++#include <QGraphicsSceneMouseEvent>
++#include <QGraphicsSceneContextMenuEvent>
++#include <QKeyEvent>
++#include <QMenu>
++#include "twoDModel/engine/model/twoDModelRobotParameters.h"
++#include "twoDModel/engine/model/timeline.h"
++using namespace twoDModel::view;
++using namespace twoDModel::model;
++namespace {
++QPixmap image(const char *name)
++{
++	return QPixmap(QString(":/mechanisms/") + name);
++}
++void sprite(QPainter *p, const char *name, double ax, double ay, double pitch)
++{
++	const auto pix = image(name);
++	p->drawPixmap(QRectF(-ax / pitch, -ay / pitch, pix.width() / pitch, pix.height() / pitch), pix,
++		QRectF(pix.rect()));
++}
++}
++MechanismItem::MechanismItem(RobotModel &model, QGraphicsItem *parent)
++	: QGraphicsItem(parent)
++	, mModel(model)
++{
++	setFlags(ItemIsSelectable | ItemIsFocusable);
++	setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
++	setZValue(8);
++	setCursor(Qt::OpenHandCursor);
++	refresh();
++	setToolTip(QStringLiteral(
++		"Перетащите мышью. Синяя стрелка — поворот. Правой кнопкой — порт мотора или удаление."));
++}
++bool MechanismItem::editingAllowed() const
++{
++	auto *timeline = dynamic_cast<Timeline *>(&mModel.info().timeline());
++	return !timeline || !timeline->isStarted();
++}
++QPointF MechanismItem::mount() const
++{
++	const auto &c = mModel.gripperConfiguration();
++	const auto size = mModel.parameters()->size();
++	return mModel.parameters()->robotCenter() + QPointF(c.x * size.width(), c.y * size.height());
++}
++QPointF MechanismItem::handle() const
++{
++	const auto &c = mModel.gripperConfiguration();
++	const auto p = gripper::rotate({0, -45}, c.rotation);
++	return mount() + QPointF(p.x, p.y);
++}
++void MechanismItem::refresh()
++{
++	prepareGeometryChange();
++	mShape = QPainterPath();
++	mShape.setFillRule(Qt::WindingFill);
++	const auto size = mModel.parameters()->size();
++	auto geometry = gripper::geometry(mModel.gripperConfiguration(), mModel.gripperJawOpening(0), size.width(),
++		size.height(), mModel.gripperJawOpening(1));
++	const auto base = gripper::baseGeometry(mModel.gripperConfiguration(), size.width(), size.height());
++	geometry.insert(geometry.end(), base.begin(), base.end());
++	for (const auto &poly : geometry) {
++		QPolygonF p;
++		for (auto v : poly)
++			p << QPointF(v.x, v.y) + mModel.parameters()->robotCenter();
++		mShape.addPolygon(p);
++		mShape.closeSubpath();
++	}
++	setVisible(mModel.gripperConfiguration().enabled);
++	update();
++}
++QRectF MechanismItem::boundingRect() const
++{
++	return mShape.boundingRect().united(QRectF(mount() - QPointF(56, 56), QSizeF(112, 112))).adjusted(-3, -3, 3, 3);
++}
++QPainterPath MechanismItem::shape() const
++{
++	auto p = mShape;
++	if (isSelected())
++		p.addEllipse(handle(), 11, 11);
++	p.addEllipse(mount(), 8, 8);
++	return p;
++}
++void MechanismItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *)
++{
++	const auto &c = mModel.gripperConfiguration();
++	if (!c.enabled)
++		return;
++	p->setRenderHint(QPainter::SmoothPixmapTransform);
++	p->setRenderHint(QPainter::Antialiasing);
++	p->save();
++	p->translate(mount());
++	p->rotate(c.rotation);
++	const double scale = mModel.parameters()->size().width() / 18;
++	p->scale(scale, scale);
++	if (c.kind == gripper::Gripper) {
++		p->setPen(QPen(QColor("#69737c"), .15));
++		p->setBrush(QColor("#bac2c8"));
++		p->drawRect(QRectF(-3, -2, 5, 4));
++		for (double y : {-5.5, -2.5}) {
++			p->save();
++			p->translate(.6, y);
++			p->rotate(90);
++			sprite(p, "beam-straight.png", 124, 450, 169);
++			p->restore();
++		}
++		for (int side = 0; side < 2; ++side) {
++			p->save();
++			p->translate(1, side ? 5.5 : -5.5);
++			p->rotate((side ? 1 : -1) * mModel.gripperJawOpening(side));
++			sprite(p, "beam-straight.png", 124, 450, 169);
++			p->restore();
++		}
++	} else if (c.kind == gripper::Kicker) {
++		p->setBrush(QColor("#bac2c8"));
++		p->drawRect(QRectF(-3, -2, 5, 4));
++		p->rotate(180 + mModel.gripperOpening());
++		static const char *names[] = {"beam-angle.png", "kicker-medium.png", "kicker-long.png",
++			"kicker-extra-long.png"};
++		const double anchors[][3] = {{1477, 541, 184}, {1565, 785, 150}, {1680, 390, 115}, {1775, 470, 100}};
++		if (c.kickerLength >= 2)
++			p->scale(1, -1);
++		auto a = anchors[c.kickerLength];
++		sprite(p, names[c.kickerLength], a[0], a[1], a[2]);
++	} else {
++		static const char *names[] = {"claw-small.png", "claw-large.png", "claw-narrow.png",
++			"claw-straight.png"};
++		const double anchors[][3] = {{803, 311, 81}, {800, 371, 78.7}, {774, 239, 104.5}, {1173, 715, 80}};
++		auto a = anchors[c.kind - 2];
++		p->rotate(-90 + (c.kind == gripper::Straight ? 180 : 0));
++		sprite(p, names[c.kind - 2], a[0], a[1], a[2]);
++	}
++	p->restore();
++	if (isSelected() && editingAllowed()) {
++		p->setBrush(Qt::NoBrush);
++		p->setPen(QPen(QColor("#3f9cff"), 1.5, Qt::DashLine));
++		p->drawPath(mShape);
++		p->setPen(QPen(QColor("#3f9cff"), 2));
++		p->drawLine(mount(), handle());
++		p->setBrush(QColor("#2679ce"));
++		p->drawEllipse(handle(), 9, 9);
++		p->setPen(Qt::white);
++		p->drawText(QRectF(handle() - QPointF(9, 10), QSizeF(18, 20)), Qt::AlignCenter, QStringLiteral("↻"));
++		if (c.motorized()) {
++			p->setPen(QColor("#3f9cff"));
++			p->drawText(mount() + QPointF(7, -7), QStringLiteral("Мотор ") + QChar('A' + c.port));
++		}
++	}
++}
++void MechanismItem::mousePressEvent(QGraphicsSceneMouseEvent *e)
++{
++	if (!editingAllowed()) {
++		e->accept();
++		return;
++	}
++	if (e->button() == Qt::RightButton) {
++		e->accept();
++		return;
++	}
++	const bool wasSelected = isSelected();
++	if (scene())
++		scene()->clearSelection();
++	parentItem()->setSelected(true);
++	setSelected(true);
++	setFocus();
++	mRotating = wasSelected && QLineF(e->pos(), handle()).length() < 14;
++	mDragOffset = e->pos() - mount();
++	setCursor(Qt::ClosedHandCursor);
++	e->accept();
++	update();
++}
++void MechanismItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
++{
++	if (!editingAllowed()) {
++		e->accept();
++		return;
++	}
++	auto c = mModel.gripperConfiguration();
++	if (mRotating) {
++		const auto v = e->pos() - mount();
++		c.rotation = std::atan2(v.y(), v.x()) / gripper::radians + 90;
++		if (c.rotation > 180)
++			c.rotation -= 360;
++	} else {
++		const auto target = e->pos() - mDragOffset - mModel.parameters()->robotCenter();
++		const auto size = mModel.parameters()->size();
++		c.x = qBound(-4.0, target.x() / size.width(), 4.0);
++		c.y = qBound(-4.0, target.y() / size.height(), 4.0);
++	}
++	mModel.configureGripper(c);
++	e->accept();
++}
++void MechanismItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
++{
++	setCursor(Qt::OpenHandCursor);
++	e->accept();
++}
++void MechanismItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e)
++{
++	if (!editingAllowed()) {
++		e->accept();
++		return;
++	}
++	QMenu menu;
++	auto c = mModel.gripperConfiguration();
++	if (c.motorized()) {
++		auto *ports = menu.addMenu(QStringLiteral("Порт мотора"));
++		for (int i = 0; i < 4; ++i) {
++			const QString name(QChar('A' + i));
++			auto *a = ports->addAction(name);
++			a->setCheckable(true);
++			a->setChecked(c.port == i);
++			a->setEnabled(mModel.getPortInfoOnWheel(RobotModel::left).name() != name
++			              && mModel.getPortInfoOnWheel(RobotModel::right).name() != name);
++			QObject::connect(a, &QAction::triggered, [this, c, i]() mutable {
++				c.port = i;
++				mModel.configureGripper(c);
++			});
++		}
++	}
++	auto *remove = menu.addAction(QStringLiteral("Удалить механизм"));
++	if (menu.exec(e->screenPos()) == remove) {
++		c.enabled = false;
++		mModel.configureGripper(c);
++	}
++	e->accept();
++}
++void MechanismItem::keyPressEvent(QKeyEvent *e)
++{
++	if (isSelected() && editingAllowed() && (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace)) {
++		auto c = mModel.gripperConfiguration();
++		c.enabled = false;
++		mModel.configureGripper(c);
++		e->accept();
++		return;
++	}
++	QGraphicsItem::keyPressEvent(e);
++}
++
++void MechanismItem::removeMechanism()
++{
++	if (editingAllowed()) {
++		auto c = mModel.gripperConfiguration();
++		c.enabled = false;
++		mModel.configureGripper(c);
++	}
++}
+diff --git a/plugins/robots/common/twoDModel/src/engine/view/scene/mechanismItem.h b/plugins/robots/common/twoDModel/src/engine/view/scene/mechanismItem.h
+new file mode 100644
+index 0000000..59c23ea
+--- /dev/null
++++ b/plugins/robots/common/twoDModel/src/engine/view/scene/mechanismItem.h
+@@ -0,0 +1,34 @@
++/* EV3 mechanisms editor. Apache-2.0. */
++#pragma once
++#include <QGraphicsItem>
++#include "twoDModel/engine/model/robotModel.h"
++namespace twoDModel {
++namespace view {
++class MechanismItem : public QGraphicsItem
++{
++public:
++	MechanismItem(model::RobotModel &model, QGraphicsItem *parent);
++	void refresh();
++	void removeMechanism();
++	QRectF boundingRect() const override;
++	QPainterPath shape() const override;
++	void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) override;
++
++protected:
++	void mousePressEvent(QGraphicsSceneMouseEvent *) override;
++	void mouseMoveEvent(QGraphicsSceneMouseEvent *) override;
++	void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
++	void contextMenuEvent(QGraphicsSceneContextMenuEvent *) override;
++	void keyPressEvent(QKeyEvent *) override;
++
++private:
++	bool editingAllowed() const;
++	QPointF mount() const;
++	QPointF handle() const;
++	model::RobotModel &mModel;
++	QPainterPath mShape;
++	bool mRotating = false;
++	QPointF mDragOffset;
++};
++}
++}
 diff --git a/plugins/robots/common/twoDModel/src/engine/view/scene/robotItem.cpp b/plugins/robots/common/twoDModel/src/engine/view/scene/robotItem.cpp
-index 3720562..a607a67 100644
+index 3720562..446db75 100644
 --- a/plugins/robots/common/twoDModel/src/engine/view/scene/robotItem.cpp
 +++ b/plugins/robots/common/twoDModel/src/engine/view/scene/robotItem.cpp
-@@ -18,6 +18,66 @@
+@@ -18,6 +18,20 @@
  #include "src/engine/items/startPosition.h"
  #include "twoDModel/engine/model/twoDModelRobotParameters.h"
  
@@ -776,162 +1521,118 @@ index 3720562..a607a67 100644
 +#include <QStandardItemModel>
 +#include "twoDModel/engine/model/timeline.h"
 +
-+namespace {
-+// A child item avoids changing the robot's size/resize handles or sensor coordinate system.
-+class GripperView : public QGraphicsItem
-+{
-+public:
-+	GripperView(twoDModel::model::RobotModel &model, QGraphicsItem *parent)
-+		: QGraphicsItem(parent)
-+		, mModel(model)
-+	{
-+		setAcceptedMouseButtons(Qt::NoButton);
-+		setZValue(4);
-+		refresh();
-+	}
-+	void refresh()
-+	{
-+		prepareGeometryChange();
-+		mShape = QPainterPath();
-+		mShape.setFillRule(Qt::WindingFill);
-+		const auto size = mModel.parameters()->size();
-+		const auto geometry = twoDModel::model::gripper::geometry(mModel.gripperConfiguration(),
-+			mModel.gripperOpening(), size.width(), size.height());
-+		for (const auto &quad : geometry) {
-+			QPolygonF polygon;
-+			for (auto point : quad)
-+				polygon << QPointF(point.x, point.y) + mModel.parameters()->robotCenter();
-+			mShape.addPolygon(polygon);
-+		}
-+		setVisible(mModel.gripperConfiguration().enabled);
-+		update();
-+	}
-+	QRectF boundingRect() const override
-+	{
-+		return mShape.boundingRect().adjusted(-2, -2, 2, 2);
-+	}
-+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) override
-+	{
-+		painter->setRenderHint(QPainter::Antialiasing);
-+		painter->setPen(QPen(QColor("#444b55"), 1));
-+		painter->setBrush(QColor("#c5cbd2"));
-+		painter->drawPath(mShape);
-+	}
-+
-+private:
-+	twoDModel::model::RobotModel &mModel;
-+	QPainterPath mShape;
-+};
-+}
++#include "mechanismItem.h"
 +
  using namespace twoDModel::view;
  using namespace graphicsUtils;
  using namespace twoDModel::model;
-@@ -84,6 +144,9 @@ RobotItem::RobotItem(graphicsUtils::AbstractCoordinateSystem *metricSystem, cons
+@@ -84,6 +98,9 @@ RobotItem::RobotItem(graphicsUtils::AbstractCoordinateSystem *metricSystem, cons
  		sensorItem->setPos(position + boundingRect().center());
  		sensorItem->setRotation(configuration.second);
  	}
-+	auto *gripperView = new GripperView(mRobotModel, this);
++	auto *gripperView = new MechanismItem(mRobotModel, this);
 +	connect(&mRobotModel, &model::RobotModel::gripperChanged, this, [gripperView]() { gripperView->refresh(); });
 +	connect(&mRobotModel, &model::RobotModel::sizeChanged, this, [gripperView](QSizeF) { gripperView->refresh(); });
  	savePos();
  }
  
-@@ -269,7 +332,17 @@ QVariant RobotItem::itemChange(GraphicsItemChange change, const QVariant &value)
+@@ -269,7 +286,7 @@ QVariant RobotItem::itemChange(GraphicsItemChange change, const QVariant &value)
  
  void RobotItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
  {
 -	QGraphicsItem::contextMenuEvent(event); // clazy:exclude=skipped-base-method
-+	if (!mRobotModel.info().supportsGripper()) {
-+		QGraphicsItem::contextMenuEvent(event);
-+		return;
-+	}
-+	QMenu menu;
-+	auto *configure = menu.addAction(tr("EV3 gripper..."));
-+	auto *timeline = dynamic_cast<model::Timeline *>(&mRobotModel.info().timeline());
-+	configure->setEnabled(!timeline || !timeline->isStarted());
-+	if (menu.exec(event->screenPos()) == configure)
-+		configureGripper();
-+	event->accept();
++	QGraphicsItem::contextMenuEvent(event);
  }
  
  void RobotItem::recoverDragStartPosition()
-@@ -339,3 +412,56 @@ void RobotItem::updateImage()
- {
- 	mImage.loadFrom(mRobotModel.info().robotImage());
- }
-+
-+void RobotItem::configureGripper()
-+{
-+	QDialog dialog;
-+	dialog.setWindowTitle(tr("EV3 gripper"));
-+	QFormLayout layout(&dialog);
-+	auto configuration = mRobotModel.gripperConfiguration();
-+	QCheckBox enabled;
-+	enabled.setChecked(configuration.enabled);
-+	layout.addRow(tr("Enabled"), &enabled);
-+	QComboBox port;
-+	port.addItems({"A", "B", "C", "D"});
-+	port.setCurrentIndex(configuration.port);
-+	for (int i = 0; i < 4; ++i) {
-+		const QString name(QChar('A' + i));
-+		if (mRobotModel.getPortInfoOnWheel(model::RobotModel::left).name() == name
-+		        || mRobotModel.getPortInfoOnWheel(model::RobotModel::right).name() == name)
-+			static_cast<QStandardItemModel *>(port.model())->item(i)->setEnabled(false);
-+	}
-+	layout.addRow(tr("Motor port (not a wheel)"), &port);
-+	auto spin = [&](const QString &label, double value, double minimum, double maximum, const QString &suffix) {
-+		auto *box = new QDoubleSpinBox(&dialog);
-+		box->setRange(minimum, maximum);
-+		box->setDecimals(1);
-+		box->setValue(value);
-+		box->setSuffix(suffix);
-+		layout.addRow(label, box);
-+		return box;
-+	};
-+	auto *x = spin(tr("Mount X (% body width)"), configuration.x * 100, -200, 200, " %");
-+	auto *y = spin(tr("Mount Y (% body height)"), configuration.y * 100, -200, 200, " %");
-+	auto *rotation = spin(tr("Mount angle"), configuration.rotation, -180, 180, "°");
-+	auto *length = spin(tr("Jaw length (% body width)"), configuration.length * 100, 20, 200, " %");
-+	auto *opening = spin(tr("Initial opening (each jaw)"), configuration.initialOpening, 0, 55, "°");
-+	auto *travel = spin(tr("Motor degrees for full travel"), configuration.travel, 30, 1440, "°");
-+	QDialogButtonBox buttons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-+	layout.addRow(&buttons);
-+	connect(&buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-+	connect(&buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-+	if (dialog.exec() != QDialog::Accepted)
-+		return;
-+	configuration.enabled = enabled.isChecked();
-+	configuration.port = port.currentIndex();
-+	configuration.x = x->value() / 100;
-+	configuration.y = y->value() / 100;
-+	configuration.rotation = rotation->value();
-+	configuration.length = length->value() / 100;
-+	configuration.initialOpening = opening->value();
-+	configuration.travel = travel->value();
-+	if (!mRobotModel.configureGripper(configuration))
-+		QMessageBox::warning(nullptr, tr("EV3 gripper"),
-+			tr("Choose a free motor port and valid gripper dimensions."));
-+}
 diff --git a/plugins/robots/common/twoDModel/src/engine/view/scene/robotItem.h b/plugins/robots/common/twoDModel/src/engine/view/scene/robotItem.h
-index 61b5ac8..6aeaf0f 100644
+index 61b5ac8..08e5727 100644
 --- a/plugins/robots/common/twoDModel/src/engine/view/scene/robotItem.h
 +++ b/plugins/robots/common/twoDModel/src/engine/view/scene/robotItem.h
-@@ -68,6 +68,9 @@ public:
+@@ -68,6 +68,7 @@ public:
  	QPolygonF collidingPolygon() const override;
  	BodyType bodyType() const override;
  
 +private:
-+	void configureGripper();
-+
  protected:
  	QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
  
+diff --git a/plugins/robots/common/twoDModel/src/engine/view/scene/twoDModelScene.cpp b/plugins/robots/common/twoDModel/src/engine/view/scene/twoDModelScene.cpp
+index 1eb212c..1acb0d0 100644
+--- a/plugins/robots/common/twoDModel/src/engine/view/scene/twoDModelScene.cpp
++++ b/plugins/robots/common/twoDModel/src/engine/view/scene/twoDModelScene.cpp
+@@ -1,3 +1,4 @@
++#include "mechanismItem.h"
+ /* Copyright 2012-2016 CyberTech Labs Ltd.
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+@@ -783,6 +784,12 @@ QPair<QStringList, QList<QPair<model::RobotModel *, kitBase::robotModel::PortInf
+ 
+ void TwoDModelScene::deleteSelectedItems()
+ {
++	if (auto *mechanism = dynamic_cast<MechanismItem *>(focusItem())) {
++		if (mechanism->isSelected() && mechanism->isVisible()) {
++			mechanism->removeMechanism();
++			return;
++		}
++	}
+ 	auto ids = parseItemsToID(selectedItems());
+ 
+ 	mCurrentWall = nullptr;
+diff --git a/plugins/robots/common/twoDModel/src/engine/view/twoDModelWidget.cpp b/plugins/robots/common/twoDModel/src/engine/view/twoDModelWidget.cpp
+index 91ee6ce..1c54a59 100644
+--- a/plugins/robots/common/twoDModel/src/engine/view/twoDModelWidget.cpp
++++ b/plugins/robots/common/twoDModel/src/engine/view/twoDModelWidget.cpp
+@@ -35,6 +35,7 @@
+ #include "parts/colorItemPopup.h"
+ #include "parts/imageItemPopup.h"
+ #include "parts/robotItemPopup.h"
++#include "parts/mechanismPanel.h"
+ #include "parts/speedPopup.h"
+ 
+ #include "scene/twoDModelScene.h"
+@@ -462,6 +463,7 @@ void TwoDModelWidget::returnToStartMarker()
+ {
+ 	mModel.worldModel().clearRobotTrace();
+ 	for (auto &&model : mModel.robotModels()) {
++		model->resetGripper();
+ 		mScene->robot(*model)->returnToStartPosition();
+ 	}
+ 
+@@ -1211,6 +1213,10 @@ void TwoDModelWidget::onRobotListChange(RobotItem *robotItem)
+ 		connect(&robotItem->robotModel().configuration(), &SensorsConfiguration::deviceRemoved, this,
+ 			checkAndSaveToRepo);
+ 
++		connect(&robotItem->robotModel(), &RobotModel::gripperChanged, this, [this]() {
++			if (!mModel.timeline().isStarted())
++				saveWorldModelToRepo();
++		});
+ 		connect(&robotItem->robotModel(), &RobotModel::wheelOnPortChanged, this,
+ 			[=](RobotModel::WheelEnum wheel, const PortInfo &port) {
+ 			if (port.isValid()) {
+@@ -1225,6 +1231,9 @@ void TwoDModelWidget::onRobotListChange(RobotItem *robotItem)
+ void TwoDModelWidget::setSelectedRobotItem(RobotItem *robotItem)
+ {
+ 	mSelectedRobotItem = robotItem;
++	mUi->detailsTab->setMechanismConfigurer(robotItem->robotModel().info().supportsGripper()
++							? createMechanismPanel(robotItem->robotModel(), mUi->detailsTab)
++							: nullptr);
+ 
+ 	connect(&mSelectedRobotItem->robotModel(), &RobotModel::robotRided, this, &TwoDModelWidget::centerOnRobot);
+ 	connect(&mSelectedRobotItem->robotModel(), &RobotModel::positionChanged, this, &TwoDModelWidget::centerOnRobot);
+@@ -1245,6 +1254,7 @@ void TwoDModelWidget::setSelectedRobotItem(RobotItem *robotItem)
+ 
+ void TwoDModelWidget::unsetSelectedRobotItem()
+ {
++	mUi->detailsTab->setMechanismConfigurer(nullptr);
+ 	if (mSelectedRobotItem) {
+ 		unsetPortsGroupBoxAndWheelComboBoxes();
+ 		disconnect(&mSelectedRobotItem->robotModel(), &RobotModel::robotRided, this,
 diff --git a/plugins/robots/common/twoDModel/twoDModel.pri b/plugins/robots/common/twoDModel/twoDModel.pri
-index 229f37c..ccb78ef 100644
+index 229f37c..34ad397 100644
 --- a/plugins/robots/common/twoDModel/twoDModel.pri
 +++ b/plugins/robots/common/twoDModel/twoDModel.pri
-@@ -257,3 +257,9 @@ FORMS += \
+@@ -257,3 +257,17 @@ FORMS += \
  	$$PWD/src/engine/view/twoDModelWidget.ui \
  
  copyToDestdir($$PWD/src/engine/templates/details/templates, now)
@@ -941,6 +1642,14 @@ index 229f37c..ccb78ef 100644
 +SOURCES += $$PWD/src/engine/model/physics/parts/box2DGripper.cpp
 +
 +HEADERS += $$PWD/include/twoDModel/engine/model/gripperSerialization.h
++
++RESOURCES += $$PWD/mechanisms.qrc
++
++HEADERS += $$PWD/src/engine/view/scene/mechanismItem.h
++SOURCES += $$PWD/src/engine/view/scene/mechanismItem.cpp
++
++HEADERS += $$PWD/src/engine/view/parts/mechanismPanel.h
++SOURCES += $$PWD/src/engine/view/parts/mechanismPanel.cpp
 diff --git a/plugins/robots/interpreters/ev3KitInterpreter/src/robotModel/twoD/twoDRobotModel.h b/plugins/robots/interpreters/ev3KitInterpreter/src/robotModel/twoD/twoDRobotModel.h
 index 1d68927..f77f5c8 100644
 --- a/plugins/robots/interpreters/ev3KitInterpreter/src/robotModel/twoD/twoDRobotModel.h
@@ -956,6 +1665,25 @@ index 1d68927..f77f5c8 100644
  	kitBase::robotModel::PortInfo defaultLeftWheelPort() const override;
  	kitBase::robotModel::PortInfo defaultRightWheelPort() const override;
  	twoDModel::engine::TwoDModelDisplayWidget *displayWidget() const override;
+diff --git a/qrgui/mainWindow/main.cpp b/qrgui/mainWindow/main.cpp
+index 489a1ae..0e3e261 100644
+--- a/qrgui/mainWindow/main.cpp
++++ b/qrgui/mainWindow/main.cpp
+@@ -70,6 +70,14 @@ static void loadTranslators(QLocale &locale)
+ 
+ static void setDefaultLocale(bool localizationDisabled)
+ {
++	// This isolated Russian demo must not inherit a foreign system locale for Qt buttons.
++	if (qEnvironmentVariableIsSet("TRIK_EV3_GRIPPER_TEST")) {
++		QLocale locale(QStringLiteral("ru_RU"));
++		QLocale::setDefault(locale);
++		loadTranslators(locale);
++		return;
++	}
++
+ 	if (localizationDisabled) {
+ 		QLocale::setDefault(QLocale::English);
+ 		return;
 diff --git a/qrkernel/settingsManager.cpp b/qrkernel/settingsManager.cpp
 index 1c2e926..7e88cc9 100644
 --- a/qrkernel/settingsManager.cpp
@@ -998,10 +1726,11 @@ index 0000000..e9b6546
 +add_test(NAME gripperSerialization COMMAND gripperSerialization)
 diff --git a/qrtest/ev3Gripper/physicsTests.cpp b/qrtest/ev3Gripper/physicsTests.cpp
 new file mode 100644
-index 0000000..5d65a2e
+index 0000000..bdab749
 --- /dev/null
 +++ b/qrtest/ev3Gripper/physicsTests.cpp
-@@ -0,0 +1,157 @@
+@@ -0,0 +1,174 @@
++/* EV3 mechanisms regression tests. Apache-2.0. */
 +#ifdef NDEBUG
 +#	undef NDEBUG
 +#endif
@@ -1016,16 +1745,12 @@ index 0000000..5d65a2e
 +	b2BodyId robot;
 +	World()
 +	{
-+		auto def = b2DefaultWorldDef();
-+		def.gravity = {0, 0};
-+		id = b2CreateWorld(&def);
-+		auto body = b2DefaultBodyDef();
-+		body.type = b2_dynamicBody;
-+		robot = b2CreateBody(id, &body);
-+		auto shape = b2DefaultShapeDef();
-+		shape.density = 1;
-+		auto polygon = b2MakeBox(.5f, .5f);
-+		b2CreatePolygonShape(robot, &shape, &polygon);
++		b2SetLengthUnitsPerMeter(.1f);
++		auto w = b2DefaultWorldDef();
++		w.gravity = {0, 0};
++		id = b2CreateWorld(&w);
++		auto b = b2DefaultBodyDef();
++		robot = b2CreateBody(id, &b);
 +	}
 +	~World()
 +	{
@@ -1033,138 +1758,158 @@ index 0000000..5d65a2e
 +	}
 +	b2BodyId ball(float x, float y, float radius, b2BodyType type = b2_dynamicBody)
 +	{
-+		auto def = b2DefaultBodyDef();
-+		def.type = type;
-+		def.position = {x, y};
-+		auto body = b2CreateBody(id, &def);
-+		auto shape = b2DefaultShapeDef();
-+		shape.density = 1;
-+		auto circle = b2Circle {{0, 0}, radius};
-+		b2CreateCircleShape(body, &shape, &circle);
++		auto b = b2DefaultBodyDef();
++		b.type = type;
++		b.position = {x, y};
++		b.linearDamping = 4;
++		b.angularDamping = 4;
++		auto body = b2CreateBody(id, &b);
++		auto s = b2DefaultShapeDef();
++		s.density = 100;
++		auto c = b2Circle {{0, 0}, radius};
++		b2CreateCircleShape(body, &s, &c);
 +		return body;
 +	}
-+	void step()
++	void step(Box2DGripper &g, double speed, const std::vector<b2BodyId> &objects = {})
 +	{
-+		b2World_Step(id, 1.f / 120, 4);
++		g.drive(speed);
++		b2World_Step(id, 1.f / 240, 8);
++		g.sample();
++		g.tryCapture(objects, speed < 0);
 +	}
 +};
 +int main()
 +{
-+	gripper::Configuration config;
-+	config.enabled = true;
-+	assert(config.valid());
-+	double opening = 35;
-+	assert(gripper::advance(opening, 360, config, false) > 0 && opening == 55);
-+	assert(gripper::advance(opening, -360, config, false) < 0 && opening == 0);
-+	assert(gripper::advance(opening, -30, config, false) == 0);
-+	opening = 20;
-+	assert(gripper::advance(opening, -30, config, true) == 0 && opening == 20);
-+	assert(gripper::advance(opening, 30, config, true) > 0);
-+	config.port = 5;
-+	assert(!config.valid());
-+	config.port = 0;
-+	config.length = NAN;
-+	assert(!config.valid());
-+	config.length = .7;
-+	auto geometry = gripper::geometry(config, 0, 1, 1);
-+	auto rotated = config;
-+	rotated.rotation = 90;
-+	auto turned = gripper::geometry(rotated, 0, 1, 1);
-+	assert(std::abs(turned[0][0].x + geometry[0][0].y) < 1e-9);
++	gripper::Configuration c;
++	c.enabled = true;
++	assert(c.valid());
++	double a = 25;
++	gripper::advance(a, 10000, c, false);
++	assert(a == 25);
++	gripper::advance(a, -10000, c, false);
++	assert(a == gripper::minimumOpening);
++	a = 10;
++	assert(gripper::advance(a, -30, c, true) == 0 && a == 10);
++	for (int k = 0; k <= 5; ++k) {
++		c.kind = k;
++		assert(!gripper::geometry(c, 25, .18, .18).empty());
++		if (k >= gripper::Small) {
++			auto area = [](const gripper::Geometry &geometry) {
++				double result = 0;
++				for (auto poly : geometry) {
++					double a = 0;
++					for (size_t i = 0; i < poly.size(); ++i) {
++						auto p = poly[i], q = poly[(i + 1) % poly.size()];
++						a += p.x * q.y - q.x * p.y;
++					}
++					result += std::abs(a) / 2;
++				}
++				return result;
++			};
++			assert(std::abs(area(gripper::fixedGeometry(k)) - area(gripper::geometry(c, 0, 18, 18)))
++			        < 1e-6);
++		}
++	}
++	c.kind = gripper::Gripper;
 +	{
-+		World world;
-+		Box2DGripper grip(world.id, world.robot);
-+		grip.setGeometry(geometry, true);
-+		auto ball = world.ball(.90f, 0, .17f);
-+		world.step();
-+		grip.tryCapture({ball}, false);
-+		assert(!grip.holding());
-+		grip.tryCapture({ball}, true);
-+		assert(grip.holding());
++		World w;
++		Box2DGripper g(w.id, w.robot);
++		g.configure(c, 25, .18, .18);
++		auto ball = w.ball(.145f, 0, .025f);
++		for (int i = 0; i < 2000 && !g.holding(); ++i)
++			w.step(g, -120, {ball});
++		std::cout << "capture " << g.holding() << " angles " << g.opening(0) << "," << g.opening(1) << "\n";
++		assert(g.holding());
++		assert(g.opening(0) > -35 && g.opening(1) > -35);
 +		const auto before = b2Body_GetPosition(ball);
-+		for (int i = 0; i < 30; ++i) {
-+			b2Body_SetLinearVelocity(world.robot, {.4f, 0});
-+			world.step();
++		b2Body_SetType(w.robot, b2_kinematicBody);
++		for (int i = 0; i < 120; ++i) {
++			b2Body_SetLinearVelocity(w.robot, {.1f, 0});
++			w.step(g, 0, {ball});
 +		}
-+		assert(b2Body_GetPosition(ball).x > before.x + .05f);
-+		grip.release();
-+		assert(!grip.holding());
++		assert(b2Body_GetPosition(ball).x > before.x + .03f);
++		g.drive(100);
++		assert(!g.holding());
 +		assert(b2Body_GetJointCount(ball) == 0);
++		g.configure(c, 25, .18, .18);
++		assert(std::abs(g.opening() - 25) < 1e-9);
++		assert(!g.holding());
 +	}
 +	{
-+		World world;
-+		Box2DGripper grip(world.id, world.robot);
-+		grip.setGeometry(geometry, true);
-+		auto oneSide = world.ball(.9f, .28f, .1f);
-+		world.step();
-+		grip.tryCapture({oneSide}, true);
-+		assert(!grip.holding());
++		World w;
++		Box2DGripper g(w.id, w.robot);
++		g.configure(c, 25, .18, .18);
++		auto wall = w.ball(.145f, -.025f, .025f, b2_staticBody);
++		for (int i = 0; i < 1500; ++i)
++			w.step(g, -180, {});
++		assert(!g.holding());
++		std::cout << "wall angles " << g.opening(0) << "," << g.opening(1) << "\n";
++		assert(std::max(g.opening(0), g.opening(1)) > -30);
++		assert(std::min(g.opening(0), g.opening(1)) > -37);
++		const int n = b2Body_GetContactCapacity(wall);
++		std::vector<b2ContactData> data(n);
++		const int count = b2Body_GetContactData(wall, data.data(), n);
++		for (int i = 0; i < count; ++i)
++			for (int j = 0; j < data[i].manifold.pointCount; ++j)
++				assert(data[i].manifold.points[j].separation > -.004f);
 +	}
 +	{
-+		World world;
-+		Box2DGripper grip(world.id, world.robot);
-+		grip.setGeometry(geometry, true);
-+		auto wall = world.ball(.9f, 0, .17f, b2_staticBody);
-+		world.step();
-+		grip.tryCapture({wall}, true);
-+		assert(!grip.holding());
-+	}
-+	{
-+		World world;
-+		Box2DGripper grip(world.id, world.robot);
-+		grip.setGeometry(geometry, true);
-+		auto ball = world.ball(.9f, 0, .17f);
-+		world.step();
-+		grip.tryCapture({ball}, true);
-+		assert(grip.holding());
++		World w;
++		Box2DGripper g(w.id, w.robot);
++		g.configure(c, 25, .18, .18);
++		auto ball = w.ball(.145f, 0, .025f);
++		for (int i = 0; i < 2000 && !g.holding(); ++i)
++			w.step(g, -120, {ball});
++		assert(g.holding());
 +		b2DestroyBody(ball);
-+		assert(!grip.holding());
-+		grip.release();
-+		grip.setGeometry(geometry, false);
++		assert(!g.holding());
++		g.release();
++		w.step(g, 0, {});
 +	}
-+
 +	{
-+		World world;
-+		Box2DGripper grip(world.id, world.robot);
-+		auto payload = world.ball(.9f, .02f, .17f);
-+		double angle = 35;
-+		for (int i = 0; i < 200 && !grip.holding(); ++i) {
-+			gripper::advance(angle, -2, config, grip.holding());
-+			grip.setGeometry(gripper::geometry(config, angle, 1, 1), true);
-+			world.step();
-+			grip.tryCapture({payload}, true);
-+		}
-+		assert(grip.holding());
-+		const double stalled = angle;
-+		assert(gripper::advance(angle, -90, config, grip.holding()) == 0 && angle == stalled);
-+		auto wallDef = b2DefaultBodyDef();
-+		wallDef.position = {1.6f, 0};
-+		auto wall = b2CreateBody(world.id, &wallDef);
-+		auto wallShape = b2DefaultShapeDef();
-+		auto wallPolygon = b2MakeBox(.05f, 1.f);
-+		b2CreatePolygonShape(wall, &wallShape, &wallPolygon);
-+		for (int i = 0; i < 300; ++i) {
-+			b2Body_SetLinearVelocity(world.robot, {.5f, 0});
-+			world.step();
-+		}
-+		assert(b2Body_GetPosition(world.robot).x < .5f);
-+		assert(b2Body_GetPosition(payload).x + .17f < 1.62f);
-+		grip.release();
-+		gripper::advance(angle, 180, config, false);
-+		grip.setGeometry(gripper::geometry(config, angle, 1, 1), true);
-+		world.step();
-+		grip.tryCapture({payload}, false);
-+		assert(!grip.holding());
++		World w;
++		Box2DGripper g(w.id, w.robot);
++		g.configure(c, 25, .18, .18);
++		auto oneSide = w.ball(.15f, .08f, .015f);
++		for (int i = 0; i < 30; ++i)
++			w.step(g, 0, {oneSide});
++		g.tryCapture({oneSide}, true);
++		assert(!g.holding());
 +	}
-+	std::cout << "PASS: motor end stops, stall, opening, geometry, two-sided capture, carry, release, one-sided "
-+		     "rejection, wall rejection, payload deletion\n";
++	for (int length = 0; length < 4; ++length) {
++		World w;
++		Box2DGripper g(w.id, w.robot);
++		c.kind = gripper::Kicker;
++		c.kickerLength = length;
++		g.configure(c, 0, .18, .18);
++		double encoder = 0;
++		for (int i = 0; i < 2400; ++i) {
++			g.drive(360);
++			b2World_Step(w.id, 1.f / 240, 8);
++			encoder += g.sample();
++		}
++		std::cout << "kicker " << length << " turns " << encoder / 360 << "\n";
++		assert(encoder > 2500);
++		assert(g.opening() > 2500);
++	}
++	for (int k = gripper::Small; k <= gripper::Straight; ++k) {
++		World w;
++		Box2DGripper g(w.id, w.robot);
++		c.kind = k;
++		g.configure(c, 0, .18, .18);
++		assert(b2Body_GetShapeCount(w.robot) == static_cast<int>(gripper::geometry(c, 0, .18, .18).size()));
++		g.clear();
++		assert(b2Body_GetShapeCount(w.robot) == 0);
++	}
++	std::cout << "PASS: capture/carry/release, real hinge obstruction, no wall penetration, reset, deleted "
++		     "payload, four continuous kickers and all fixed claws\n";
 +}
 diff --git a/qrtest/ev3Gripper/serializationTests.cpp b/qrtest/ev3Gripper/serializationTests.cpp
 new file mode 100644
-index 0000000..c4f0737
+index 0000000..7cc6c9a
 --- /dev/null
 +++ b/qrtest/ev3Gripper/serializationTests.cpp
-@@ -0,0 +1,42 @@
+@@ -0,0 +1,58 @@
 +/* EV3 gripper prototype tests, Apache-2.0. */
 +#ifdef NDEBUG
 +#	undef NDEBUG
@@ -1194,12 +1939,28 @@ index 0000000..c4f0737
 +	auto value = deserialize(saved.documentElement());
 +	assert(value.enabled && value.port == 3 && value.rotation == 90 && value.length == 1.2 && value.travel == 360
 +	        && value.initialOpening == 12);
++	for (int kind = 0; kind <= 5; ++kind)
++		for (int length = 0; length < 4; ++length) {
++			QDomDocument d;
++			auto root = d.createElement("robot");
++			d.appendChild(root);
++			expected.kind = kind;
++			expected.kickerLength = length;
++			expected.maxOpening = 123;
++			serialize(expected, root);
++			const auto restored = deserialize(root);
++			assert(restored.enabled && restored.kind == kind && restored.kickerLength == length
++			        && restored.maxOpening == 123);
++		}
 +	for (const auto &bad : {QString("<robot><gripper enabled='true' port=''/></robot>"),
 +		     QString("<robot><gripper enabled='true' port='BLAH'/></robot>"),
 +		     QString("<robot><gripper enabled='true' length='nan'/></robot>"),
 +		     QString("<robot><gripper enabled='true' x='Infinity'/></robot>"),
 +		     QString("<robot><gripper enabled='true' opening='-1'/></robot>"),
-+		     QString("<robot><gripper enabled='true' travel='0'/></robot>")}) {
++		     QString("<robot><gripper enabled='true' travel='0'/></robot>"),
++		     QString("<robot><gripper enabled='true' kind='2.5'/></robot>"),
++		     QString("<robot><gripper enabled='true' maxOpening='181'/></robot>"),
++		     QString("<robot><gripper enabled='true' kickerLength='4'/></robot>")}) {
 +		QDomDocument invalid;
 +		assert(invalid.setContent(bad));
 +		assert(!deserialize(invalid.documentElement()).enabled);

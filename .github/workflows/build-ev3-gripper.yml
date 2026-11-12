@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/build-ev3-gripper.yml'
       - 'EV3_GRIPPER.patch'
+      - 'mechanism-assets/**'
       - 'Start-EV3-Gripper.cmd'
   workflow_dispatch:
 permissions:
@@ -46,7 +47,7 @@ jobs:
           path: |
             studio/
             build/
-          key: win-qt5152-gcc81-py311-e045-v1-${{ hashFiles('EV3_GRIPPER.patch') }}
+          key: win-qt5152-gcc81-py311-e045-v1-${{ hashFiles('EV3_GRIPPER.patch', 'mechanism-assets/**') }}
           restore-keys: win-qt5152-gcc81-py311-e045-v1-
       - name: Get the exact source and apply the reviewed patch
         if: steps.compiled.outputs.cache-hit != 'true'
@@ -63,6 +64,8 @@ jobs:
           git -C "$root/studio" submodule update --init --recursive --jobs 4
           git -C "$root/studio" apply --check "$root/EV3_GRIPPER.patch"
           git -C "$root/studio" apply "$root/EV3_GRIPPER.patch"
+          mkdir -p "$root/studio/plugins/robots/common/twoDModel/images/mechanisms"
+          cp "$root/mechanism-assets/"*.png "$root/studio/plugins/robots/common/twoDModel/images/mechanisms/"
       - name: Build the complete application
         if: steps.compiled.outputs.cache-hit != 'true'
         run: |
@@ -145,7 +148,7 @@ jobs:
           retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
-          name: TRIK-EV3-Gripper-Windows-x64
+          name: TRIK-EV3-Mechanisms-Windows-x64
           path: build/bin/
           if-no-files-found: error
           retention-days: 14
