@@ -34,16 +34,31 @@ jobs:
         with:
           python-version: '3.11'
           architecture: x64
+      - uses: actions/cache/restore@v4
+        id: compiled
+        with:
+          path: |
+            studio/
+            build/
+          key: win-qt5152-gcc81-py311-e045-v1-${{ hashFiles('EV3_GRIPPER.patch') }}
+          restore-keys: win-qt5152-gcc81-py311-e045-v1-
       - name: Get the exact source and apply the reviewed patch
+        if: steps.compiled.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
           root=$(cygpath -u "$GITHUB_WORKSPACE")
-          git clone --no-checkout https://github.com/trikset/trik-studio.git "$root/studio"
+          if [ -d "$root/studio/.git" ]; then
+            git -C "$root/studio" reset --hard e045db1a187fa59e63ca3575f21253c6c30f8029
+            git -C "$root/studio" clean -fd
+          else
+            git clone --no-checkout https://github.com/trikset/trik-studio.git "$root/studio"
+          fi
           git -C "$root/studio" checkout e045db1a187fa59e63ca3575f21253c6c30f8029
           git -C "$root/studio" submodule update --init --recursive --jobs 4
           git -C "$root/studio" apply --check "$root/EV3_GRIPPER.patch"
           git -C "$root/studio" apply "$root/EV3_GRIPPER.patch"
       - name: Build the complete application
+        if: steps.compiled.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
           root=$(cygpath -u "$GITHUB_WORKSPACE")
@@ -52,20 +67,34 @@ jobs:
           qmake "$(cygpath -m "$root/studio/studio.pro")" -spec win32-g++ CONFIG+=release CONFIG+=no-sanitizers CONFIG+=noPch CONFIG+=warn_off "PYTHON_PATH=$pythonLocation" PYTHON_VERSION=3.11
           mingw32-make -j 4 qmake_all
           mingw32-make -j 4 all
-      - name: Bundle Qt and non-Qt runtime libraries
+      - uses: actions/cache/save@v4
+        if: steps.compiled.outputs.cache-hit != 'true'
+        with:
+          path: |
+            studio/
+            build/
+          key: ${{ steps.compiled.outputs.cache-primary-key }}
+      - name: Bundle native dependencies
         run: |
           set -euo pipefail
           root=$(cygpath -u "$GITHUB_WORKSPACE")
-          cd "$root/build/bin"
-          test -f trik-studio.exe
-          cp /mingw64/bin/*.dll .
-          while IFS= read -r -d '' file; do
-            case "$(basename "$file")" in Qt5*.dll) continue ;; esac
-            objdump -p "$file" > "$root/imports.txt"
-            if grep -q 'DLL Name: Qt5' "$root/imports.txt"; then
-              windeployqt --release --compiler-runtime --dir . "$file"
-            fi
-          done < <(find . -type f \( -iname '*.exe' -o -iname '*.dll' \) ! -path './platforms/*' ! -path './imageformats/*' -print0)
+          test -f "$root/build/bin/trik-studio.exe"
+          cp /mingw64/bin/*.dll "$root/build/bin/"
+      - name: Bundle Qt with an explicit plugin directory
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bin = Join-Path $env:GITHUB_WORKSPACE 'build/bin'
+          $qt = $env:QT_ROOT_DIR
+          if (-not (Test-Path "$qt/plugins/platforms/qwindows.dll")) { throw 'Qt Windows platform plugin is absent from the SDK.' }
+          Copy-Item "$qt/bin/*.dll" $bin -Force
+          Copy-Item "$qt/plugins" (Join-Path $bin 'qt-plugins') -Recurse -Force
+          $compiler = Join-Path $env:IQTA_TOOLS 'mingw810_64/bin'
+          foreach ($dll in @('libgcc_s_seh-1.dll', 'libstdc++-6.dll', 'libwinpthread-1.dll')) {
+            Copy-Item (Join-Path $compiler $dll) $bin -Force
+          }
+          "[Paths]`nPrefix=.`nLibraries=.`nBinaries=.`nPlugins=qt-plugins`nTranslations=translations" | Set-Content (Join-Path $bin 'qt.conf') -Encoding ascii
+          if (Test-Path "$qt/translations") { Copy-Item "$qt/translations" $bin -Recurse -Force }
       - name: Bundle Python and the test launcher
         shell: pwsh
         run: |
@@ -83,6 +112,10 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $bin = Join-Path $env:GITHUB_WORKSPACE 'build/bin'
+          # Do not let the runner's Qt/Python installations hide missing runtime files.
+          $env:PATH = "$bin;$env:SystemRoot/System32;$env:SystemRoot"
+          Remove-Item Env:QT_PLUGIN_PATH -ErrorAction SilentlyContinue
+          Remove-Item Env:QML2_IMPORT_PATH -ErrorAction SilentlyContinue
           $env:TRIK_EV3_GRIPPER_TEST = '1'
           $env:TRIK_PYTHONPATH = "$bin/python-runtime/Lib;$bin/python-runtime/DLLs"
           $process = Start-Process (Join-Path $bin 'trik-studio.exe') -WorkingDirectory $bin -PassThru
@@ -97,6 +130,13 @@ jobs:
               if (-not $process.WaitForExit(5000)) { $process.Kill() }
             }
           }
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: TRIK-EV3-packaging-diagnostics
+          path: build/bin/
+          if-no-files-found: warn
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
           name: TRIK-EV3-Gripper-Windows-x64
