@@ -1097,7 +1097,7 @@ new file mode 100644
 index 0000000..5d62503
 --- /dev/null
 +++ b/plugins/robots/common/twoDModel/src/engine/view/parts/mechanismPanel.cpp
-@@ -0,0 +1,92 @@
+@@ -0,0 +1,89 @@
 +/* Apache-2.0. */
 +#include "mechanismPanel.h"
 +#include <QComboBox>
@@ -1108,7 +1108,7 @@ index 0000000..5d62503
 +#include <QIcon>
 +#include "twoDModel/engine/model/timeline.h"
 +using namespace twoDModel;
-+QWidget *view::createMechanismPanel(model::RobotModel &robot, QWidget *parent)
++QWidget *view::createMechanismPanel(model::RobotModel &robot, model::Timeline &timeline, QWidget *parent)
 +{
 +	auto *panel = new QWidget(parent);
 +	panel->setMinimumHeight(220);
@@ -1140,7 +1140,7 @@ index 0000000..5d62503
 +		panel);
 +	help->setWordWrap(true);
 +	layout->addWidget(help);
-+	auto sync = [&robot, choice, opening, label, panel]() {
++	auto sync = [&robot, &timeline, choice, opening, label, panel]() {
 +		const auto &c = robot.gripperConfiguration();
 +		const QSignalBlocker b1(choice), b2(opening);
 +		const int index = !c.enabled                          ? 0
@@ -1151,8 +1151,7 @@ index 0000000..5d62503
 +		opening->setValue(c.maxOpening);
 +		label->setVisible(c.enabled && c.kind == model::gripper::Gripper);
 +		opening->setVisible(c.enabled && c.kind == model::gripper::Gripper);
-+		auto *timeline = dynamic_cast<model::Timeline *>(&robot.info().timeline());
-+		panel->setEnabled(!timeline || !timeline->isStarted());
++		panel->setEnabled(!timeline.isStarted());
 +	};
 +	QObject::connect(choice, QOverload<int>::of(&QComboBox::currentIndexChanged), panel, [&robot, sync](int index) {
 +		auto c = robot.gripperConfiguration();
@@ -1183,10 +1182,8 @@ index 0000000..5d62503
 +	QObject::connect(&robot, &model::RobotModel::gripperChanged, panel, sync);
 +	QObject::connect(&robot, &model::RobotModel::wheelOnPortChanged, panel,
 +		[sync](model::RobotModel::WheelEnum, const kitBase::robotModel::PortInfo &) { sync(); });
-+	if (auto *timeline = dynamic_cast<model::Timeline *>(&robot.info().timeline())) {
-+		QObject::connect(timeline, &model::Timeline::started, panel, sync);
-+		QObject::connect(timeline, &model::Timeline::stopped, panel, sync);
-+	}
++	QObject::connect(&timeline, &model::Timeline::started, panel, sync);
++	QObject::connect(&timeline, &model::Timeline::stopped, panel, sync);
 +	sync();
 +	return panel;
 +}
@@ -1195,14 +1192,15 @@ new file mode 100644
 index 0000000..b3668c0
 --- /dev/null
 +++ b/plugins/robots/common/twoDModel/src/engine/view/parts/mechanismPanel.h
-@@ -0,0 +1,9 @@
+@@ -0,0 +1,10 @@
 +/* Apache-2.0. */
 +#pragma once
 +#include <QWidget>
 +#include "twoDModel/engine/model/robotModel.h"
 +namespace twoDModel {
++namespace model { class Timeline; }
 +namespace view {
-+QWidget *createMechanismPanel(model::RobotModel &model, QWidget *parent);
++QWidget *createMechanismPanel(model::RobotModel &model, model::Timeline &timeline, QWidget *parent);
 +}
 +}
 diff --git a/plugins/robots/common/twoDModel/src/engine/view/scene/mechanismItem.cpp b/plugins/robots/common/twoDModel/src/engine/view/scene/mechanismItem.cpp
@@ -1615,7 +1613,7 @@ index 91ee6ce..1c54a59 100644
  {
  	mSelectedRobotItem = robotItem;
 +	mUi->detailsTab->setMechanismConfigurer(robotItem->robotModel().info().supportsGripper()
-+							? createMechanismPanel(robotItem->robotModel(), mUi->detailsTab)
++							? createMechanismPanel(robotItem->robotModel(), mModel.timeline(), mUi->detailsTab)
 +							: nullptr);
  
  	connect(&mSelectedRobotItem->robotModel(), &RobotModel::robotRided, this, &TwoDModelWidget::centerOnRobot);
