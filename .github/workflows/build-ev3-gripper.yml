@@ -1,5 +1,11 @@
 name: EV3 gripper portable Windows
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-ev3-gripper.yml'
+      - 'EV3_GRIPPER.patch'
+      - 'Start-EV3-Gripper.cmd'
   workflow_dispatch:
 permissions:
   contents: read
