@@ -1,0 +1,105 @@
+name: EV3 gripper portable Windows
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          path-type: inherit
+          msystem: MINGW64
+      - name: Install native dependencies
+        run: |
+          set -euo pipefail
+          pacman --noconfirm -S --needed zlib-devel dos2unix rsync unzip mingw-w64-x86_64-libzip mingw-w64-x86_64-libusb mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config
+      - uses: jurplel/install-qt-action@v4
+        with:
+          dir: C:\
+          version: '5.15.2'
+          arch: win64_mingw81
+          modules: qtscript
+          archives: qtbase qtmultimedia qtsvg qtscript qttools qtserialport qtimageformats qtwinextras qttranslations
+          tools: tools_mingw,qt.tools.win64_mingw810
+          add-tools-to-path: true
+          cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: x64
+      - name: Get the exact source and apply the reviewed patch
+        run: |
+          set -euo pipefail
+          root=$(cygpath -u "$GITHUB_WORKSPACE")
+          git clone --no-checkout https://github.com/trikset/trik-studio.git "$root/studio"
+          git -C "$root/studio" checkout e045db1a187fa59e63ca3575f21253c6c30f8029
+          git -C "$root/studio" submodule update --init --recursive --jobs 4
+          git -C "$root/studio" apply --check "$root/EV3_GRIPPER.patch"
+          git -C "$root/studio" apply "$root/EV3_GRIPPER.patch"
+      - name: Build the complete application
+        run: |
+          set -euo pipefail
+          root=$(cygpath -u "$GITHUB_WORKSPACE")
+          mkdir -p "$root/build"
+          cd "$root/build"
+          qmake "$(cygpath -m "$root/studio/studio.pro")" -spec win32-g++ CONFIG+=release CONFIG+=no-sanitizers CONFIG+=noPch CONFIG+=warn_off "PYTHON_PATH=$pythonLocation" PYTHON_VERSION=3.11
+          mingw32-make -j 4 qmake_all
+          mingw32-make -j 4 all
+      - name: Bundle Qt and non-Qt runtime libraries
+        run: |
+          set -euo pipefail
+          root=$(cygpath -u "$GITHUB_WORKSPACE")
+          cd "$root/build/bin"
+          test -f trik-studio.exe
+          cp /mingw64/bin/*.dll .
+          while IFS= read -r -d '' file; do
+            case "$(basename "$file")" in Qt5*.dll) continue ;; esac
+            objdump -p "$file" > "$root/imports.txt"
+            if grep -q 'DLL Name: Qt5' "$root/imports.txt"; then
+              windeployqt --release --compiler-runtime --dir . "$file"
+            fi
+          done < <(find . -type f \( -iname '*.exe' -o -iname '*.dll' \) ! -path './platforms/*' ! -path './imageformats/*' -print0)
+      - name: Bundle Python and the test launcher
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bin = Join-Path $env:GITHUB_WORKSPACE 'build/bin'
+          $runtime = Join-Path $bin 'python-runtime'
+          New-Item -ItemType Directory -Force $runtime | Out-Null
+          Copy-Item "$env:pythonLocation/Lib" $runtime -Recurse
+          Copy-Item "$env:pythonLocation/DLLs" $runtime -Recurse
+          Copy-Item "$env:pythonLocation/*.dll" $bin -Force
+          Copy-Item (Join-Path $env:GITHUB_WORKSPACE 'Start-EV3-Gripper.cmd') $bin
+          Copy-Item (Join-Path $env:GITHUB_WORKSPACE 'TEST_WINDOWS_RU.md') $bin
+      - name: Check that the Windows GUI starts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bin = Join-Path $env:GITHUB_WORKSPACE 'build/bin'
+          $env:TRIK_EV3_GRIPPER_TEST = '1'
+          $env:TRIK_PYTHONPATH = "$bin/python-runtime/Lib;$bin/python-runtime/DLLs"
+          $process = Start-Process (Join-Path $bin 'trik-studio.exe') -WorkingDirectory $bin -PassThru
+          try {
+            if (-not $process.WaitForInputIdle(60000)) { throw 'The application did not enter its GUI event loop.' }
+            Start-Sleep -Seconds 8
+            $process.Refresh()
+            if ($process.HasExited) { throw "TRIK Studio exited during startup: $($process.ExitCode)" }
+          } finally {
+            if (-not $process.HasExited) {
+              $null = $process.CloseMainWindow()
+              if (-not $process.WaitForExit(5000)) { $process.Kill() }
+            }
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TRIK-EV3-Gripper-Windows-x64
+          path: build/bin/
+          if-no-files-found: error
+          retention-days: 14
