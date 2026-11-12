@@ -26,7 +26,7 @@ jobs:
       - name: Install native dependencies
         run: |
           set -euo pipefail
-          pacman --noconfirm -S --needed zlib-devel dos2unix rsync unzip mingw-w64-x86_64-libzip mingw-w64-x86_64-libusb mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config
+          pacman --noconfirm -S --needed zlib-devel dos2unix rsync unzip mingw-w64-x86_64-libzip mingw-w64-x86_64-libusb mingw-w64-x86_64-zlib mingw-w64-x86_64-pkg-config mingw-w64-x86_64-gdb
       - uses: jurplel/install-qt-action@v4
         with:
           dir: C:\
@@ -125,9 +125,10 @@ jobs:
           $env:PATH = "$bin;$env:SystemRoot/System32;$env:SystemRoot"
           Remove-Item Env:QT_PLUGIN_PATH -ErrorAction SilentlyContinue
           Remove-Item Env:QML2_IMPORT_PATH -ErrorAction SilentlyContinue
+          $env:QT_DEBUG_PLUGINS = '1'
           $env:TRIK_EV3_GRIPPER_TEST = '1'
           $env:TRIK_PYTHONPATH = "$bin/python-runtime/Lib;$bin/python-runtime/DLLs"
-          $process = Start-Process (Join-Path $bin 'trik-studio.exe') -WorkingDirectory $bin -PassThru
+          $process = Start-Process (Join-Path $bin 'trik-studio.exe') -WorkingDirectory $bin -PassThru -RedirectStandardOutput (Join-Path $bin 'startup.stdout.log') -RedirectStandardError (Join-Path $bin 'startup.stderr.log')
           try {
             if (-not $process.WaitForInputIdle(60000)) { throw 'The application did not enter its GUI event loop.' }
             Start-Sleep -Seconds 8
@@ -139,6 +140,30 @@ jobs:
               if (-not $process.WaitForExit(5000)) { $process.Kill() }
             }
           }
+      - name: Diagnose a failed Windows startup
+        if: failure()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $bin = Join-Path $env:GITHUB_WORKSPACE 'build/bin'
+          $env:PATH = "$bin;$env:SystemRoot/System32;$env:SystemRoot"
+          $env:TRIK_EV3_GRIPPER_TEST = '1'
+          $env:TRIK_PYTHONPATH = "$bin/python-runtime/Lib;$bin/python-runtime/DLLs"
+          Remove-Item Env:QT_PLUGIN_PATH -ErrorAction SilentlyContinue
+          Remove-Item Env:QML2_IMPORT_PATH -ErrorAction SilentlyContinue
+          $debugger = 'C:/msys64/mingw64/bin/gdb.exe'
+          if (-not (Test-Path $debugger)) { $debugger = 'D:/a/_temp/msys64/mingw64/bin/gdb.exe' }
+          if (Test-Path $debugger) {
+            $commands = Join-Path $bin 'startup.gdb'
+            @('set pagination off','set confirm off','run','thread apply all bt','info sharedlibrary','quit') | Set-Content $commands
+            $debug = Start-Process $debugger -WorkingDirectory $bin -ArgumentList @('-batch','-x','startup.gdb','--args','trik-studio.exe') -PassThru -RedirectStandardOutput (Join-Path $bin 'startup.gdb.log') -RedirectStandardError (Join-Path $bin 'startup.gdb.stderr.log')
+            if (-not $debug.WaitForExit(45000)) { taskkill /PID $debug.Id /T /F }
+          }
+          foreach ($base in @($env:LOCALAPPDATA,$env:APPDATA,$env:TEMP)) {
+            Get-ChildItem $base -Filter '*qreal*.log*' -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Copy-Item $_.FullName (Join-Path $bin $_.Name) -Force }
+          }
+          Get-Content (Join-Path $bin 'startup.gdb.log') -ErrorAction SilentlyContinue
+          Get-Content (Join-Path $bin 'startup.stderr.log') -Tail 80 -ErrorAction SilentlyContinue
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
